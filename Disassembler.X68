@@ -1,7 +1,7 @@
 *-----------------------------------------------------------
 * Title      : X68000 Motarola Disassembler for CSS 422
 * Written by : Jacob Ryse, Leanne Vu, Liam Morrison, Rachel Graham
-* Date       : 
+* Date       : 4/16/2022
 * Description: Disassembler for the X68000 Motarola CPU
 *-----------------------------------------------------------
 
@@ -15,6 +15,7 @@ START:
     TRAP    #15
     
     END     START
+
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
