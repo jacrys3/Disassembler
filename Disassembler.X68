@@ -10,11 +10,40 @@
 
 START:
     
+    LEA     WMSG,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     ENTERMSG1,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.B  #4,D0
+    TRAP    #15
+    
+    LEA     ENTERMSG2,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.B  #4,D0
+    TRAP    #15
     
     MOVE.B  #9,D0
     TRAP    #15
-    
+  
+CR  EQU $0D
+LF  EQU $0A
+
+WMSG        DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
+            DC.B    'First make sure to load your progrom into memory',CR,LF
+            DC.B    'Next enter two memory addresses of the start and end of',CR,LF
+            DC.B    'Your program',CR,LF,0
+
+ENTERMSG1    DC.B   'Enter starting address: ',0
+ENTERMSG2    DC.B   'Enter ending address: ',0 
+  
     END     START
+
 
 *~Font name~Courier New~
 *~Font size~10~
