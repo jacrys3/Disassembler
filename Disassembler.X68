@@ -20,6 +20,8 @@ START:
     
     MOVE.B  #4,D0
     TRAP    #15
+
+    MOVE.L  D1,D2
     
     LEA     ENTERMSG2,A1
     MOVE.B  #14,D0
@@ -27,22 +29,42 @@ START:
     
     MOVE.B  #4,D0
     TRAP    #15
+
+    MOVE.L  D1,D3
+
+    MOVE.L D2,SP
+    BRA ReadMemory
     
+
+
+ReadMemory:
+    MOVE.L  (SP)+,D1
+
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    CMP.L   SP,D3 
+    BLE END
+    
+    BRA ReadMemory
+    
+END:
     MOVE.B  #9,D0
     TRAP    #15
   
 CR  EQU $0D
 LF  EQU $0A
 
-WMSG        DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
-            DC.B    'First make sure to load your program into memory',CR,LF
-            DC.B    'Next enter two memory addresses, the start and end of',CR,LF
-            DC.B    'your program',CR,LF,0
-
+WMSG         DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
+             DC.B    'First make sure to load your program into memory',CR,LF
+             DC.B    'Next enter two memory addresses, the start and end of',CR,LF
+             DC.B    'your program',CR,LF,0
+SPACE        DC.B    '',CR,LF,0
 ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
 
 
 *~Font name~Courier New~
