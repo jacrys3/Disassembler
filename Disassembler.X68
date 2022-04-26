@@ -18,21 +18,28 @@ START:
     MOVE.B  #14,D0
     TRAP    #15
     
-    MOVE.B  #4,D0
+    CLR (A1)
+    *First number
+    MOVE.B  #2,D0
     TRAP    #15
 
-    MOVE.L  D1,D2
+    MOVEA.L  A1,A2
+    
     
     LEA     ENTERMSG2,A1
     MOVE.B  #14,D0
     TRAP    #15
-    
-    MOVE.B  #4,D0
+
+    CLR (A1)
+    *Second number
+    MOVE.B  #2,D0
     TRAP    #15
 
-    MOVE.L  D1,D3
+    MOVE.L  A1,A3
 
     MOVE.L D2,SP
+
+
     BRA ReadMemory
     
 
@@ -43,7 +50,7 @@ ReadMemory:
     MOVE.B  #3,D0
     TRAP    #15
     
-    CMP.L   SP,D3 
+    CMP.L   SP,D3
     BLE END
     
     BRA ReadMemory
@@ -52,6 +59,12 @@ END:
     MOVE.B  #9,D0
     TRAP    #15
   
+
+ConvertHex:
+    
+
+
+
 CR  EQU $0D
 LF  EQU $0A
 
@@ -64,6 +77,8 @@ ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
+
 
 
 
