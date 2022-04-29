@@ -7,6 +7,7 @@
 
     ORG     $1000
 
+**************** START ***************************
 
 START:
     
@@ -35,25 +36,178 @@ START:
 
     MOVE.L  A1,A3
 
-    MOVE.L D2,SP
+    *Set A1 to A2 for iteration
+    MOVE.L  A2,A1
 
-
-    BRA ConvertHex
+    CLR D3
+    
+    JSR ConvertHex
+    
+    MOVE.L  D3,D2
+    
+    CLR D3
+    
+    JSR ConvertHex
     
 
+****************** Main LOOP *************************
 
-ReadMemory:
+MainLoop:
     
-    
+  
+
+  
 END:
     MOVE.B  #9,D0
     TRAP    #15
   
 
+************** CONVERT INPUT TO HEX ******************
+
 ConvertHex:
+    * D2 and D3 will be used to store the new values for
+    * A2 and A3 respectivly 
     
+    CMP.B   #$30,(A1)
+    BEQ     zero
+    
+    CMP.B   #$31,(A1)
+    BEQ     one
+    
+    CMP.B   #$32,(A1)
+    BEQ     two
+    
+    CMP.B   #$33,(A1)
+    BEQ     three
+    
+    CMP.B   #$34,(A1)
+    BEQ     four
+    
+    CMP.B   #$35,(A1)
+    BEQ     five
+    
+    CMP.B   #$36,(A1)
+    BEQ     six
+    
+    CMP.B   #$37,(A1)
+    BEQ     seven
+    
+    CMP.B   #$38,(A1)
+    BEQ     eight
+    
+    CMP.B   #$39,(A1)
+    BEQ     nine
+    
+    CMP.B   #$41,(A1)
+    BEQ     a
+
+    CMP.B   #$42,(A1)
+    BEQ     b
+
+    CMP.B   #$43,(A1)
+    BEQ     c
+
+    CMP.B   #$44,(A1)
+    BEQ     d
+    
+    CMP.B   #$45,(A1)
+    BEQ     e
+
+    CMP.B   #$46,(A1)
+    BEQ     f   
+    
+    BRA     invalid
+   
+zero:
+
+    ASL.L   #4,D3
+    ADDI.L  #$00,D3
+    NOP (A1)+
+    BRA     ConvertHex
+
+one:
+    ASL.L   #4,D3
+    ADDI.L  #$01,D3
+    NOP (A1)+
+    BRA     ConvertHex
+
+two:
+
+    
+    BRA     ConvertHex
+
+three:
+
+    
+    BRA     ConvertHex
+
+four:
+
+    
+    BRA     ConvertHex
+
+five:
+
+    
+    BRA     ConvertHex
+
+six:
+
+    
+    BRA     ConvertHex
+
+seven:
+
+    
+    BRA     ConvertHex
+
+eight:
+
+    
+    BRA     ConvertHex
+
+nine:
+
+    
+    BRA     ConvertHex
+
+a:
+
+    
+    BRA     ConvertHex
+
+b:
+
+    
+    BRA     ConvertHex
+
+c:
+
+    
+    BRA     ConvertHex
+
+d:
+
+    
+    BRA     ConvertHex
+
+e:
+
+    
+    BRA     ConvertHex
+
+f:
+
+    
+    BRA     ConvertHex
+    
+invalid:
+    
+    JMP     END
 
 
+
+******************* CONSTANTS ************************
 
 CR  EQU $0D
 LF  EQU $0A
