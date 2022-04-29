@@ -122,82 +122,110 @@ zero:
 
     ASL.L   #4,D3
     ADDI.L  #$00,D3
-    NOP (A1)+
+    ADDQ    #1,A1
     BRA     ConvertHex
 
 one:
     ASL.L   #4,D3
     ADDI.L  #$01,D3
-    NOP (A1)+
+    ADDQ    #1,A1
     BRA     ConvertHex
 
 two:
-
+    ASL.L   #4,D3
+    ADDI.L  #$02,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 three:
-
+    ASL.L   #4,D3
+    ADDI.L  #$03,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 four:
-
+    ASL.L   #4,D3
+    ADDI.L  #$04,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 five:
-
+    ASL.L   #4,D3
+    ADDI.L  #$05,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 six:
-
+    ASL.L   #4,D3
+    ADDI.L  #$06,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 seven:
-
+    ASL.L   #4,D3
+    ADDI.L  #$07,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 eight:
-
+    ASL.L   #4,D3
+    ADDI.L  #$08,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 nine:
-
+    ASL.L   #4,D3
+    ADDI.L  #$09,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 a:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0A,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 b:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0B,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 c:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0C,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 d:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0D,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 e:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0E,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
 
 f:
-
+    ASL.L   #4,D3
+    ADDI.L  #$0F,D3
+    ADDQ    #1,A1
     
     BRA     ConvertHex
     
@@ -221,6 +249,7 @@ ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
 
 
 
