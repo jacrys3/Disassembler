@@ -234,6 +234,145 @@ invalid:
     JMP     END
 
 
+******************** OPCODES *************************
+
+* format as -memory location-  -opcode-  -operand-
+* invalids displayed as  1000  DATA  -uncoded hex-
+
+*------Liam-------
+
+*------NOP-------
+
+
+*------MOVE-------
+
+
+*------MOVEQ-------
+
+
+*------MOVEM-------
+
+
+*------MOVEA-------
+
+
+*------ADD-------
+
+
+
+
+
+*------LEANNE-----
+
+*------ADDA-------
+
+
+*------ADDQ-------
+
+
+*------SUB-------
+
+
+*------LEA-------
+
+    
+*------AND-------
+
+
+*------OR-------
+
+
+*------NOT-------
+
+
+
+
+*-----JACOB------
+
+*------LSL-------
+
+
+*------LSR-------
+
+
+*------ASL-------
+
+
+*------ASR-------
+
+
+*------ROL-------
+
+
+*------ROR-------
+
+
+
+
+*------RACHEL-----
+
+*------BGT-------
+
+
+*------BLE-------
+
+
+*------BEQ-------
+
+
+*------JSR-------
+
+
+*------RTS-------
+
+
+*------BRA-------
+
+
+
+**************** EFFECTIVE ADDRESSING ********************
+
+* decoding EA's
+
+*------Liam-------
+
+*----DATA REGISTER DIRECT---
+
+
+*----IMEDIATE DATA------
+
+
+
+
+*----LEANNE-----
+
+*----ADDRESS REGISTER DIRECT---
+
+
+*----ADDRESS REGISTER INDIRECT----
+
+
+
+
+
+*-----JACOB-----
+
+*----ADDRESS REGISTER INDIRECT WITH POST INCREMENTING----
+
+
+*----ADDRESS REGISTER INDIRECT WITH PRE INCREMENTING----
+
+
+
+
+
+*----RACHEL-----
+
+*----ABSOLUTE LONG ADDRESS----
+
+
+*----ABSOLUTE WORD ADDRESS----
+
 
 ******************* CONSTANTS ************************
 
@@ -249,6 +388,7 @@ ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
 
 
 
