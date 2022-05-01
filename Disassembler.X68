@@ -10,7 +10,7 @@
 **************** START ***************************
 
 START:
-    
+    BRA     MainLoop
     LEA     WMSG,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -54,7 +54,16 @@ START:
 
 MainLoop:
     * put instruction into D6
+    MOVE.W  #$EEAF,D6
     * print out address first, then print rest out in opcode section...
+    MOVE.W  #2000,D1
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    LEA     BIGSPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
     JSR opcodes
 
   
@@ -294,7 +303,7 @@ opcodes:
 
 *-----JACOB------
 
-*------LSL------- (pg 217)
+*------LSL & LSR------- (pg 217)
 
 * format (register shift) LSL #<data>,Dy or LSL Dx,Dy
 * |1110|count/register|1|size|i/r|01|register|
@@ -304,7 +313,167 @@ lslregshift:
     CMP     #%1110000100001000,D5   *compare if is correct opcode
     BNE     lslmemshift             *if not equal branch to next opcode
     
-    * check size
+    LEA     LSL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000000000000,D5
+    BEQ     lsdbyte
+    
+    CMP     #%0000000001000000,D5
+    BEQ     lsdword
+    
+    CMP     #%0000000010000000,D5
+    BEQ     lsdlong
+    
+* format (register shift) LSR #<data>,Dy or LSR Dx,Dy
+* |1110|count/register|0|size|i/r|01|register|
+lsrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000001000,D5
+    BNE     lsrmemshift
+    
+    LEA     LSR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000000000000,D5
+    BEQ     lsdbyte
+    
+    CMP     #%0000000001000000,D5
+    BEQ     lsdword
+    
+    CMP     #%0000000010000000,D5
+    BEQ     lsdlong
+
+lsdbyte:
+    LEA     BYTE,A1
+    BRA     lsdir
+lsdword:
+    LEA     WORD,A1
+    BRA     lsdir
+lsdlong:
+    LEA     LONG,A1
+    BRA     lsdir
+    
+lsdir:
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.W  #%0000000000100000,D5
+    AND.W   D6,D5
+    CMP     #%0000000000000000,D5
+    BEQ     lsdcount
+    BNE     lsdregister
+    
+lsdcount:
+    LEA     NUM,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    BRA     lsdnum
+    
+lsdregister:
+    
+    LEA     DREG,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    BRA     lsdnum
+    
+    
+lsdnum:
+
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    MOVE.W  #0,D1
+    CMP     #%0000000000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #1,D1
+    CMP     #%0000001000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #2,D1
+    CMP     #%0000010000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #3,D1
+    CMP     #%0000011000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #4,D1
+    CMP     #%0000100000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #5,D1
+    CMP     #%0000101000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #6,D1
+    CMP     #%0000110000000000,D5
+    BEQ     lsdsecreg
+    
+    MOVE.W  #7,D1
+    CMP     #%0000111000000000,D5
+    BEQ     lsdsecreg
+    
+lsdsecreg:
+    MOVE.B  #3,D0
+    TRAP    #15
+
+    LEA     COMMA,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     DREG,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    MOVE.W  #%0000000000000111,D5
+    AND.W   D6,D5
+    MOVE.W  #0,D1
+    CMP     #%0000000000000000,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #1,D1
+    CMP     #%0000000000000001,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #2,D1
+    CMP     #%0000000000000010,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #3,D1
+    CMP     #%0000000000000011,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #4,D1
+    CMP     #%0000000000000100,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #5,D1
+    CMP     #%0000000000000101,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #6,D1
+    CMP     #%0000000000000110,D5
+    BEQ     lsdprintreg
+    
+    MOVE.W  #7,D1
+    CMP     #%0000000000000111,D5
+    BEQ     lsdprintreg
+    
+    
+lsdprintreg:
+    MOVE.B  #3,D0
+    TRAP    #15
+
+    JMP     END
+    
 
 
 * format (memory shift) LSL <ea>
@@ -315,16 +484,6 @@ lslmemshift:
     CMP     #%1110001111000000,D5
     BNE     lsrregshift
     
-
-*------LSR------- (pg 217)
-
-* format (register shift) LSR #<data>,Dy or LSR Dx,Dy
-* |1110|count/register|0|size|i/r|01|register|
-lsrregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000001000,D5
-    BNE     lsrmemshift
 
 * format (memory shift) LSR <ea>
 * |1110001011|EA mode|EA register|
@@ -481,10 +640,24 @@ WMSG         DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
              DC.B    'Next enter two memory addresses, the start and end of',CR,LF
              DC.B    'your program',CR,LF,0
 SPACE        DC.B    '',CR,LF,0
-ENTERMSG1    DC.B   'Enter starting address: ',0
-ENTERMSG2    DC.B   'Enter ending address: ',0 
-  
+ENTERMSG1    DC.B    'Enter starting address: ',0
+ENTERMSG2    DC.B    'Enter ending address: ',0
+COMMA        DC.B    ',',0
+NUM          DC.B    '#',0
+DREG         DC.B    'D',0
+BIGSPACE     DC.B    '    ',0
+BYTE         DC.B    'B    ',0
+WORD         DC.B    'W    ',0
+LONG         DC.B    'L    ',0
+LSL          DC.B    'LSL.',0
+LSR          DC.B    'LSR.',0
+ASL          DC.B    'ASL.',0
+ASR          DC.B    'ASR.',0
+ROL          DC.B    'ROL.',0
+ROR          DC.B    'ROR.',0
+
     END     START
+
 
 
 
