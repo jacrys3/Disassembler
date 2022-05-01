@@ -54,7 +54,7 @@ START:
 
 MainLoop:
     * put instruction into D6
-    MOVE.W  #$EEAF,D6
+    MOVE.W  #$EC7A,D6
     * print out address first, then print rest out in opcode section...
     MOVE.W  #2000,D1
     MOVE.B  #3,D0
@@ -303,125 +303,197 @@ opcodes:
 
 *-----JACOB------
 
-*------LSL & LSR------- (pg 217)
+*------LSL LSR ASL ASR ROL ROR-------
 
+*-------- LSL REGISTER SHIFT -------
 * format (register shift) LSL #<data>,Dy or LSL Dx,Dy
 * |1110|count/register|1|size|i/r|01|register|
+
 lslregshift:
     MOVE.W  #%1111000100011000,D5   *move binary to AND into D5
     AND.W   D6,D5
     CMP     #%1110000100001000,D5   *compare if is correct opcode
-    BNE     lslmemshift             *if not equal branch to next opcode
+    BNE     lsrregshift             *if not equal branch to next opcode
     
     LEA     LSL,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    MOVE.W  #%0000000011000000,D5
-    AND.W   D6,D5
-    CMP     #%0000000000000000,D5
-    BEQ     lsdbyte
+    BRA     jsize
     
-    CMP     #%0000000001000000,D5
-    BEQ     lsdword
     
-    CMP     #%0000000010000000,D5
-    BEQ     lsdlong
-    
+*-------- LSR REGISTER SHIFT -------
 * format (register shift) LSR #<data>,Dy or LSR Dx,Dy
 * |1110|count/register|0|size|i/r|01|register|
+
 lsrregshift:
     MOVE.W  #%1111000100011000,D5
     AND.W   D6,D5
     CMP     #%1110000000001000,D5
-    BNE     lsrmemshift
+    BNE     aslregshift
     
     LEA     LSR,A1
     MOVE.B  #14,D0
     TRAP    #15
+
+    BRA     jsize
     
+
+*-------- ASL REGISTER SHIFT -------    
+* format (register shift) ASL #<data>,Dy or ASL Dx,Dy
+* |1110|count/register|1|size|i/r|00|register|
+
+aslregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100000000,D5
+    BNE     asrregshift
+
+    LEA     ASL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    BRA     jsize
+    
+
+*-------- ASR REGISTER SHIFT -------
+* format (register shift) ASR #<data>,Dy or ASR Dx,Dy
+* |1110|count/register|0|size|i/r|00|register|
+
+asrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000000000,D5
+    BNE     rolregrot
+    
+    LEA     ASR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    BRA     jsize
+    
+
+*-------- ROL REGISTER ROTATE -------
+* format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
+* |1110|count/register|1|size|i/r|11|register|
+
+rolregrot:
+    MOVE.W  #%1110000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100011000,D5
+    BNE     rorregrot
+    
+    LEA     ROL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    BRA     jsize
+    
+
+*-------- ROR REGISTER ROTATE -------    
+* format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
+* |1110|count/register|0|size|i/r|11|register|
+
+rorregrot:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000011000,D5
+    BNE     lslmemshift
+    
+    LEA     ROR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    BRA     jsize
+
+
+*--- HELPER SUBROUTINES FOR REGISTER SHIFTS/ROTATES ---
+
+jsize:
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
-    BEQ     lsdbyte
+    BEQ     jbyte
     
     CMP     #%0000000001000000,D5
-    BEQ     lsdword
+    BEQ     jword
     
     CMP     #%0000000010000000,D5
-    BEQ     lsdlong
-
-lsdbyte:
-    LEA     BYTE,A1
-    BRA     lsdir
-lsdword:
-    LEA     WORD,A1
-    BRA     lsdir
-lsdlong:
-    LEA     LONG,A1
-    BRA     lsdir
+    BEQ     jlong
     
-lsdir:
+    BRA     invalid
+
+jbyte:
+    LEA     BYTE,A1
+    BRA     jir
+jword:
+    LEA     WORD,A1
+    BRA     jir
+jlong:
+    LEA     LONG,A1
+    BRA     jir
+    
+jir:
     MOVE.B  #14,D0
     TRAP    #15
     
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
-    BEQ     lsdcount
-    BNE     lsdregister
+    BEQ     jcount
+    BNE     jregister
     
-lsdcount:
+jcount:
     LEA     NUM,A1
     MOVE.B  #14,D0
     TRAP    #15
-    BRA     lsdnum
+    BRA     jnum
     
-lsdregister:
-    
+jregister:
     LEA     DREG,A1
     MOVE.B  #14,D0
     TRAP    #15
-    BRA     lsdnum
+    BRA     jnum
     
     
-lsdnum:
-
+jnum:
     MOVE.W  #%0000111000000000,D5
     AND.W   D6,D5
     MOVE.W  #0,D1
     CMP     #%0000000000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #1,D1
     CMP     #%0000001000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #2,D1
     CMP     #%0000010000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #3,D1
     CMP     #%0000011000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #4,D1
     CMP     #%0000100000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #5,D1
     CMP     #%0000101000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #6,D1
     CMP     #%0000110000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
     MOVE.W  #7,D1
     CMP     #%0000111000000000,D5
-    BEQ     lsdsecreg
+    BEQ     jsecreg
     
-lsdsecreg:
+    BRA     invalid
+    
+jsecreg:
     MOVE.B  #3,D0
     TRAP    #15
 
@@ -437,133 +509,112 @@ lsdsecreg:
     AND.W   D6,D5
     MOVE.W  #0,D1
     CMP     #%0000000000000000,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #1,D1
     CMP     #%0000000000000001,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #2,D1
     CMP     #%0000000000000010,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #3,D1
     CMP     #%0000000000000011,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #4,D1
     CMP     #%0000000000000100,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #5,D1
     CMP     #%0000000000000101,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #6,D1
     CMP     #%0000000000000110,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
     MOVE.W  #7,D1
     CMP     #%0000000000000111,D5
-    BEQ     lsdprintreg
+    BEQ     jprintreg
     
+    BRA     invalid
     
-lsdprintreg:
+jprintreg:
     MOVE.B  #3,D0
     TRAP    #15
 
     JMP     END
     
-
-
+*--------LSL MEMORY SHIFT--------
 * format (memory shift) LSL <ea>
 * |1110001111|EA mode|EA register|
+
 lslmemshift:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110001111000000,D5
-    BNE     lsrregshift
+    BNE     lsrmemshift
     
-
+    
+*--------LSR MEMORY SHIFT--------
 * format (memory shift) LSR <ea>
 * |1110001011|EA mode|EA register|
+
 lsrmemshift:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110001011000000,D5
-    BNE     aslregshift
-
-*------ASL------- (pg 125)
-
-* format (register shift) ASL #<data>,Dy or ASL Dx,Dy
-* |1110|count/register|1|size|i/r|00|register|
-aslregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000100000000,D5
     BNE     aslmemshift
 
+
+*--------ASL MEMORY SHIFT--------
 * format (memory shift) ASL <ea>
 * |1110000111|EA mode|EA register|
+
 aslmemshift:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110000111000000,D5
-    BNE     asrregshift
-
-*------ASR------- (pg 125)
-
-* format (register shift) ASR #<data>,Dy or ASR Dx,Dy
-* |1110|count/register|0|size|i/r|00|register|
-asrregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000000000,D5
     BNE     asrmemshift
 
+
+*--------ASR MEMORY SHIFT--------
 * format (memory shift) ASR <ea>
 * |1110000011|EA mode|EA register|
+
 asrmemshift:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110000011000000,D5
-    BNE     rolregrot
-
-*------ROL------- (pg 264)
-
-* format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
-* |1110|count/register|1|size|i/r|11|register|
-rolregrot:
-    MOVE.W  #%1110000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000100011000,D5
     BNE     rolmemrot
 
+
+*--------ROL MEMORY SHIFT--------
 * format (memory rotate) ROL <ea>
 * |1110011111|EA mode|EA register|
+
 rolmemrot:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110011111000000,D5
-    BNE     rorregrot
-
-*------ROR------- (pg 264)
-
-* format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
-* |1110|count/register|0|size|i/r|11|register|
-rorregrot:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000011000,D5
     BNE     rormemrot
 
+
+*--------ROR MEMORY SHIFT--------
 * format (memory rotate) ROR <ea>
 * |1110011011|EA mode|EA register|
+
 rormemrot:
     MOVE.W  #%1111111111000000,D5
     AND.W   D6,D5
     CMP     #%1110011011000000,D5
     *BNE     BGT
+    JMP     END
+
+
+
 
 *------RACHEL-----
 
@@ -657,20 +708,6 @@ ROL          DC.B    'ROL.',0
 ROR          DC.B    'ROR.',0
 
     END     START
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 *~Font name~Courier New~
 *~Font size~10~
 *~Tab type~1~
