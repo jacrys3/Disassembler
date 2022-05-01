@@ -53,8 +53,9 @@ START:
 ****************** Main LOOP *************************
 
 MainLoop:
-    
-  
+    * put instruction into D6
+    * print out address first, then print rest out in opcode section...
+    JSR opcodes
 
   
 END:
@@ -238,6 +239,10 @@ invalid:
 
 * format as -memory location-  -opcode-  -operand-
 * invalids displayed as  1000  DATA  -uncoded hex-
+* each opcode should branch to the next if it is not that specific opcode
+
+opcodes:
+*-----get instruction from memory, put in D6 (NEED TO DO THIS BEFORE EVERY AND)-----
 
 *------Liam-------
 
@@ -293,61 +298,113 @@ invalid:
 
 * format (register shift) LSL #<data>,Dy or LSL Dx,Dy
 * |1110|count/register|1|size|i/r|01|register|
+lslregshift:
+    MOVE.W  #%1111000100011000,D5   *move binary to AND into D5
+    AND.W   D6,D5
+    CMP     #%1110000100001000,D5   *compare if is correct opcode
+    BNE     lslmemshift             *if not equal branch to next opcode
+    
+    * check size
 
 
 * format (memory shift) LSL <ea>
 * |1110001111|EA mode|EA register|
-
+lslmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110001111000000,D5
+    BNE     lsrregshift
+    
 
 *------LSR------- (pg 217)
 
 * format (register shift) LSR #<data>,Dy or LSR Dx,Dy
 * |1110|count/register|0|size|i/r|01|register|
-
+lsrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000001000,D5
+    BNE     lsrmemshift
 
 * format (memory shift) LSR <ea>
 * |1110001011|EA mode|EA register|
-
+lsrmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110001011000000,D5
+    BNE     aslregshift
 
 *------ASL------- (pg 125)
 
 * format (register shift) ASL #<data>,Dy or ASL Dx,Dy
 * |1110|count/register|1|size|i/r|00|register|
-
+aslregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100000000,D5
+    BNE     aslmemshift
 
 * format (memory shift) ASL <ea>
 * |1110000111|EA mode|EA register|
-
+aslmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110000111000000,D5
+    BNE     asrregshift
 
 *------ASR------- (pg 125)
 
 * format (register shift) ASR #<data>,Dy or ASR Dx,Dy
 * |1110|count/register|0|size|i/r|00|register|
-
+asrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000000000,D5
+    BNE     asrmemshift
 
 * format (memory shift) ASR <ea>
 * |1110000011|EA mode|EA register|
-
+asrmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110000011000000,D5
+    BNE     rolregrot
 
 *------ROL------- (pg 264)
 
 * format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
 * |1110|count/register|1|size|i/r|11|register|
-
+rolregrot:
+    MOVE.W  #%1110000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100011000,D5
+    BNE     rolmemrot
 
 * format (memory rotate) ROL <ea>
 * |1110011111|EA mode|EA register|
-
+rolmemrot:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110011111000000,D5
+    BNE     rorregrot
 
 *------ROR------- (pg 264)
 
 * format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
 * |1110|count/register|0|size|i/r|11|register|
-
+rorregrot:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000011000,D5
+    BNE     rormemrot
 
 * format (memory rotate) ROR <ea>
 * |1110011011|EA mode|EA register|
-
+rormemrot:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110011011000000,D5
+    *BNE     BGT
 
 *------RACHEL-----
 
@@ -428,6 +485,9 @@ ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
+
+
 
 
 
