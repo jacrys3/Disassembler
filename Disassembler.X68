@@ -289,24 +289,64 @@ invalid:
 
 *-----JACOB------
 
-*------LSL-------
+*------LSL------- (pg 217)
+
+* format (register shift) LSL #<data>,Dy or LSL Dx,Dy
+* |1110|count/register|1|size|i/r|01|register|
 
 
-*------LSR-------
+* format (memory shift) LSL <ea>
+* |1110001111|EA mode|EA register|
 
 
-*------ASL-------
+*------LSR------- (pg 217)
+
+* format (register shift) LSR #<data>,Dy or LSR Dx,Dy
+* |1110|count/register|0|size|i/r|01|register|
 
 
-*------ASR-------
+* format (memory shift) LSR <ea>
+* |1110001011|EA mode|EA register|
 
 
-*------ROL-------
+*------ASL------- (pg 125)
+
+* format (register shift) ASL #<data>,Dy or ASL Dx,Dy
+* |1110|count/register|1|size|i/r|00|register|
 
 
-*------ROR-------
+* format (memory shift) ASL <ea>
+* |1110000111|EA mode|EA register|
 
 
+*------ASR------- (pg 125)
+
+* format (register shift) ASR #<data>,Dy or ASR Dx,Dy
+* |1110|count/register|0|size|i/r|00|register|
+
+
+* format (memory shift) ASR <ea>
+* |1110000011|EA mode|EA register|
+
+
+*------ROL------- (pg 264)
+
+* format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
+* |1110|count/register|1|size|i/r|11|register|
+
+
+* format (memory rotate) ROL <ea>
+* |1110011111|EA mode|EA register|
+
+
+*------ROR------- (pg 264)
+
+* format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
+* |1110|count/register|0|size|i/r|11|register|
+
+
+* format (memory rotate) ROR <ea>
+* |1110011011|EA mode|EA register|
 
 
 *------RACHEL-----
@@ -388,6 +428,8 @@ ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
   
     END     START
+
+
 
 
 
