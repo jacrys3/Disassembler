@@ -279,6 +279,7 @@ nop:
     LEA msgnop,A1
     MOVE.W  #14,D0
     TRAP    #15
+    
     RTS
   
 *------MOVEA-------
@@ -294,6 +295,8 @@ movea:
     TRAP    #15  
 
     JSR movesize  
+    
+    JSR ea
 
     RTS
 *------MOVE-------
@@ -309,6 +312,8 @@ move:
     TRAP    #15 
    
     JSR movesize
+    
+    JSR ea
    
     RTS
 *------MOVEQ-------
@@ -322,6 +327,8 @@ moveq:
     LEA msgmoveq,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    JSR ea
     
     RTS
 *------MOVEM-------
@@ -338,27 +345,63 @@ movem:
     
     JSR movemsize
     
+    JSR ea *gonna have to do something more than this
+    
     RTS
 *------ADD-------
 add:
     CLR D5
     MOVE.W  #%1111000000000000,D5
     AND.W  D6,D5
-    CMP.W   #%1011000000000000,D5
-    BNE adda
+    CMP.W   #%1101000000000000,D5
+    BNE addq
+    
+    * If ADDA then go there
+    CLR D5
+    MOVE.W  #%1111000111000000,D5
+    AND.W  D6,D5
+    CMP.W   #%1101000011000000,D5
+    BEQ adda
+    CMP.W   #%1101000111000000,D5
+    BEQ adda
 
+    * Must be ADD
     LEA msgadd,A1
     MOVE.B  #14,D0
     TRAP    #15
     
     JSR addsize
     
+    JSR ea
+    
     RTS
 *------ADDA-------
 adda:
 
+    LEA msgadda,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR addasize
+
+    JSR ea
+
+    RTS
+
 *------ADDQ-------
 addq:
+    CLR D5
+    MOVE.W  #%1111000100000000,D5
+    AND.W  D6,D5
+    CMP.W   #%0101000000000000,D5
+    BNE sub
+    
+    LEA msgaddq,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR ea
+    RTS
 
 *--- Sizes ---
 movesize:
@@ -395,6 +438,15 @@ addsize:
     BEQ printword
     
     CMP.W   #%0000000101000000,D5 
+    BEQ printword
+    
+    BRA printlong 
+
+addasize:
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    
+    CMP.W   #%0000000011000000,D5 
     BEQ printword
     
     BRA printlong 
@@ -573,7 +625,10 @@ rormemrot:
 
 **************** EFFECTIVE ADDRESSING ********************
 
-* decoding EA's
+ea:
+    
+
+* decoding individual EA's
 
 *------Liam-------
 

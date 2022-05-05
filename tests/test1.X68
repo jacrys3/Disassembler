@@ -1,16 +1,11 @@
     ORG $4000
     
 START:
-    NOP
-    NOP
-    NOP
-    NOP
-    MOVE.B    D1,D3
-    MOVEQ   #4,D2
-    ADD.B #1,D3
+    ADD.B D2,D3
     
 
     END START
+
 
 
 *~Font name~Courier New~
