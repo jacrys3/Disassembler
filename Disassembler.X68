@@ -24,7 +24,12 @@ START:
     MOVE.B  #2,D0
     TRAP    #15
     
-    MOVE.L  A1,A2
+    CLR D2
+    CLR D3
+    JSR decode
+    
+    
+    MOVE.L  D3,D4
     
     LEA     ENTERMSG2,A1
     MOVE.B  #14,D0
@@ -33,21 +38,23 @@ START:
     *Second number
     MOVE.B  #2,D0
     TRAP    #15
-
-    MOVE.L  A1,A3
-
-    *Set A1 to A2 for iteration
-    MOVE.L  A2,A1
-
+    
+    CLR D2
     CLR D3
+    JSR decode
     
-    JSR ConvertHex
+    CLR D5
+    MOVE.L  D3,D5
+    MOVE.L  D4,D3
+    CLR D4
     
-    MOVE.L  D3,D2
+    MOVE.L  D5,D4
     
-    CLR D3
+    CLR D5
+    CLR D2
     
-    JSR ConvertHex
+    MOVE.L  D3,A5
+    BRA MainLoop
     
 
 ****************** Main LOOP *************************
@@ -55,8 +62,17 @@ START:
 MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
+    MOVE.W  (A5)+,D6
     JSR opcodes
-
+    
+    LEA SPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CMPA    D4,A5
+    BLE     MainLoop
+    
+    BRA END
   
 END:
     MOVE.B  #9,D0
@@ -65,10 +81,11 @@ END:
 
 ************** CONVERT INPUT TO HEX ******************
 
-ConvertHex:
-    * D2 and D3 will be used to store the new values for
-    * A2 and A3 respectivly 
-    
+decode:
+
+    CMP.B   D2,D1
+    BEQ     return 
+
     CMP.B   #$30,(A1)
     BEQ     zero
     
@@ -116,124 +133,129 @@ ConvertHex:
 
     CMP.B   #$46,(A1)
     BEQ     f   
-    
-    BRA     invalid
+   
+return:
+    RTS
    
 zero:
 
     ASL.L   #4,D3
     ADDI.L  #$00,D3
     ADDQ    #1,A1
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 one:
     ASL.L   #4,D3
     ADDI.L  #$01,D3
     ADDQ    #1,A1
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 two:
     ASL.L   #4,D3
     ADDI.L  #$02,D3
     ADDQ    #1,A1
+    ADDQ    #1,D2
     
-    BRA     ConvertHex
+    BRA     decode
 
 three:
     ASL.L   #4,D3
     ADDI.L  #$03,D3
     ADDQ    #1,A1
+    ADDQ    #1,D2
     
-    BRA     ConvertHex
+    BRA     decode
 
 four:
     ASL.L   #4,D3
     ADDI.L  #$04,D3
     ADDQ    #1,A1
+    ADDQ    #1,D2
     
-    BRA     ConvertHex
+    BRA     decode
 
 five:
     ASL.L   #4,D3
     ADDI.L  #$05,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 six:
     ASL.L   #4,D3
     ADDI.L  #$06,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 seven:
     ASL.L   #4,D3
     ADDI.L  #$07,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 eight:
     ASL.L   #4,D3
     ADDI.L  #$08,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 nine:
     ASL.L   #4,D3
     ADDI.L  #$09,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 a:
     ASL.L   #4,D3
     ADDI.L  #$0A,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 b:
     ASL.L   #4,D3
     ADDI.L  #$0B,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 c:
     ASL.L   #4,D3
     ADDI.L  #$0C,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 d:
     ASL.L   #4,D3
     ADDI.L  #$0D,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 e:
     ASL.L   #4,D3
     ADDI.L  #$0E,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
+    ADDQ    #1,D2
+    BRA     decode
 
 f:
     ASL.L   #4,D3
     ADDI.L  #$0F,D3
     ADDQ    #1,A1
-    
-    BRA     ConvertHex
-    
+    ADDQ    #1,D2
+    BRA     decode
+        
 invalid:
     
     JMP     END
-
 
 ******************** OPCODES *************************
 
@@ -247,48 +269,109 @@ opcodes:
 *------Liam-------
 
 *------NOP-------
+nop:
+    CLR D5
+    MOVE.L  #$FFFFFFFF,D5
+    AND.L  D6,D5
+    CMP.W   #%0100111001110001,D5
+    BNE movea
+    
+    LEA msgnop,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
+  
+*------MOVEA-------
+movea:
+    CLR D5
+    MOVE.L  #%1100000111000000,D5
+    AND.L  D6,D5
+    CMP.W   #%0000000001000000,D5
+    BNE move
 
+    LEA msgmovea,A1
+    MOVE.B  #14,D0
+    TRAP    #15  
+    
+moveasize:
+    MOVE.L  #%0011000000000000,D5
+    AND.L   D6,D5
+    CMP.W   #$   
 
 *------MOVE-------
-
-
+move:
+    CLR D5
+    MOVE.L  #%1100000000000000,D5
+    AND.L  D6,D5
+    CMP.W   #%0000000000000000,D5
+    BNE moveq
+    
+    LEA msgmove,A1
+    MOVE.B  #14,D0
+    TRAP    #15 
+   
+    RTS
 *------MOVEQ-------
-
-
+moveq:
+    CLR D5
+    MOVE.L  #%1111000100000000,D5
+    AND.L  D6,D5
+    CMP.W   #%0111000000000000,D5
+    BNE movem
+    
+    LEA msgmoveq,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    RTS
 *------MOVEM-------
+movem:
+    CLR D5
+    MOVE.L  #%1111101110000000,D5
+    AND.L  D6,D5
+    CMP.W   #%0100100010000000,D5
+    BNE add
 
-
-*------MOVEA-------
-
-
+    LEA msgmovem,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    RTS
 *------ADD-------
+add:
+    CLR D5
+    MOVE.L  #%1111000000000000,D5
+    AND.L  D6,D5
+    CMP.W   #%1011000000000000,D5
+    BNE adda
 
-
-
-
-
-*------LEANNE-----
-
+    LEA msgadd,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    RTS
 *------ADDA-------
-
+adda:
 
 *------ADDQ-------
+addq:
+
 
 
 *------SUB-------
-
+sub:
 
 *------LEA-------
-
+lea:
     
 *------AND-------
-
+and:
 
 *------OR-------
-
+or:
 
 *------NOT-------
-
+not:
 
 
 
@@ -425,7 +508,23 @@ rormemrot:
 
 *------BRA-------
 
+printbyte:
 
+    LEA msgbyte,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
+
+printword:
+    LEA msgword,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
+printlong
+    LEA msglong,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
 
 **************** EFFECTIVE ADDRESSING ********************
 
@@ -483,8 +582,26 @@ WMSG         DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
 SPACE        DC.B    '',CR,LF,0
 ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
+
+msgmove      DC.B   'MOVE',0
+msgmovea     DC.B   'MOVEA',0
+msgmoveq     DC.B   'MOVEQ',0
+msgmovem     DC.B   'MOVEM',0
+msgadd       DC.B   'ADD',0
+msgadda      DC.B   'ADDA',0
+msgaddq      DC.B   'ADDQ',0
+msgnop       DC.B   'NOP',0
+
+msgbyte      DC.B   '.B',0
+msgword      DC.B   '.W',0
+msglong      DC.B   '.L',0
+
   
     END     START
+
+
+
+
 
 
 
