@@ -332,7 +332,7 @@ moveq:
     
     RTS
 *------MOVEM-------
-movem:
+movem: ** NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     CLR D5
     MOVE.W  #%1111101110000000,D5
     AND.W  D6,D5
@@ -626,7 +626,7 @@ rormemrot:
 **************** EFFECTIVE ADDRESSING ********************
 
 ea:
-    
+    RTS
 
 * decoding individual EA's
 
@@ -698,6 +698,7 @@ msglong      DC.B   '.L',0
 
   
     END     START
+
 
 
 
