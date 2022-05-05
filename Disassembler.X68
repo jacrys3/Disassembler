@@ -271,38 +271,36 @@ opcodes:
 *------NOP-------
 nop:
     CLR D5
-    MOVE.L  #$FFFFFFFF,D5
-    AND.L  D6,D5
+    MOVE.W  #$FFFFFFFF,D5
+    AND.W  D6,D5
     CMP.W   #%0100111001110001,D5
     BNE movea
     
     LEA msgnop,A1
-    MOVE.B  #14,D0
+    MOVE.W  #14,D0
     TRAP    #15
     RTS
   
 *------MOVEA-------
 movea:
     CLR D5
-    MOVE.L  #%1100000111000000,D5
-    AND.L  D6,D5
+    MOVE.W  #%1100000111000000,D5
+    AND.W  D6,D5
     CMP.W   #%0000000001000000,D5
     BNE move
 
     LEA msgmovea,A1
     MOVE.B  #14,D0
     TRAP    #15  
-    
-moveasize:
-    MOVE.L  #%0011000000000000,D5
-    AND.L   D6,D5
-    CMP.W   #$   
 
+    JSR movesize  
+
+    RTS
 *------MOVE-------
 move:
     CLR D5
-    MOVE.L  #%1100000000000000,D5
-    AND.L  D6,D5
+    MOVE.W  #%1100000000000000,D5
+    AND.W  D6,D5
     CMP.W   #%0000000000000000,D5
     BNE moveq
     
@@ -310,12 +308,14 @@ move:
     MOVE.B  #14,D0
     TRAP    #15 
    
+    JSR movesize
+   
     RTS
 *------MOVEQ-------
 moveq:
     CLR D5
-    MOVE.L  #%1111000100000000,D5
-    AND.L  D6,D5
+    MOVE.W  #%1111000100000000,D5
+    AND.W  D6,D5
     CMP.W   #%0111000000000000,D5
     BNE movem
     
@@ -327,8 +327,8 @@ moveq:
 *------MOVEM-------
 movem:
     CLR D5
-    MOVE.L  #%1111101110000000,D5
-    AND.L  D6,D5
+    MOVE.W  #%1111101110000000,D5
+    AND.W  D6,D5
     CMP.W   #%0100100010000000,D5
     BNE add
 
@@ -336,18 +336,22 @@ movem:
     MOVE.B  #14,D0
     TRAP    #15
     
+    JSR movemsize
+    
     RTS
 *------ADD-------
 add:
     CLR D5
-    MOVE.L  #%1111000000000000,D5
-    AND.L  D6,D5
+    MOVE.W  #%1111000000000000,D5
+    AND.W  D6,D5
     CMP.W   #%1011000000000000,D5
     BNE adda
 
     LEA msgadd,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    JSR addsize
     
     RTS
 *------ADDA-------
@@ -356,7 +360,64 @@ adda:
 *------ADDQ-------
 addq:
 
+*--- Sizes ---
+movesize:
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    
+    CMP.W   #%0001000000000000,D5
+    BEQ printbyte
+    CMP.W   #%0011000000000000,D5 
+    BEQ printword
+    
+    BRA printlong 
+    
+movemsize:
+    MOVE.W  #%0000000001000000,D5
+    AND.W   D6,D5
+    
+    CMP.W   #%0000000001000000,D5 
+    BEQ printword
+    
+    BRA printlong
+    
+addsize:
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    
+    CMP.W   #%0000000000000000,D5
+    BEQ printbyte
+    
+    CMP.W   #%0000000100000000,D5
+    BEQ printbyte
+    
+    CMP.W   #%0000000001000000,D5 
+    BEQ printword
+    
+    CMP.W   #%0000000101000000,D5 
+    BEQ printword
+    
+    BRA printlong 
+    
+*------- Printing of sections --------
+printbyte:
 
+    LEA msgbyte,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
+
+printword:
+    LEA msgword,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS
+printlong
+    LEA msglong,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    RTS    
+*----------------END Liam-----------------------    
 
 *------SUB-------
 sub:
@@ -508,23 +569,7 @@ rormemrot:
 
 *------BRA-------
 
-printbyte:
 
-    LEA msgbyte,A1
-    MOVE.B  #14,D0
-    TRAP    #15
-    RTS
-
-printword:
-    LEA msgword,A1
-    MOVE.B  #14,D0
-    TRAP    #15
-    RTS
-printlong
-    LEA msglong,A1
-    MOVE.B  #14,D0
-    TRAP    #15
-    RTS
 
 **************** EFFECTIVE ADDRESSING ********************
 
