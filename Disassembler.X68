@@ -1,6 +1,6 @@
 *-----------------------------------------------------------
 * Title      : X68000 Motarola Disassembler for CSS 422
-* Written by : Jacob Ryse, Leanne Vu, Liam Morrison, Rachel Graham
+* Written by : Jacob Ryse, Liam Morrison, Rachel Graham
 * Date       : 4/16/2022
 * Description: Disassembler for the X68000 Motarola CPU
 *-----------------------------------------------------------
@@ -8,7 +8,7 @@
     ORG     $1000
 
 **************** START ***************************
-
+*comment
 START:
     
     LEA     WMSG,A1
@@ -705,6 +705,7 @@ msgaddrr     DC.B   'A',0
 
   
     END     START
+
 
 
 
