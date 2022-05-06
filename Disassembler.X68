@@ -633,9 +633,11 @@ ea:
 *------Liam-------
 
 *----DATA REGISTER DIRECT---
-
+eadrd:
+    LEA msgdatar
 
 *----IMEDIATE DATA------
+eaid:
 
 
 
@@ -696,8 +698,14 @@ msgbyte      DC.B   '.B',0
 msgword      DC.B   '.W',0
 msglong      DC.B   '.L',0
 
+msgdatar     DC.B   'D',0
+msgim        DC.B   '#',0
+msgaddrr     DC.B   'A',0
+
+
   
     END     START
+
 
 
 
