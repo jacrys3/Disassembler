@@ -277,10 +277,77 @@ opcodes:
 
 *------SUB-------
 
+* format:
+* |1001| register | opmode | <ea> mode | <ea> register
+SUB:
+    MOVE.W	#%1111000000000000, D5
+    AND.W	D6, D5
+    CMP		#%1001000000000000, D5
+    BNE		lea
 
+* display opcode SUB
+    LEA		SUB, A1
+    MOVE.B	#14, D0
+    TRAP		#15
+
+    BRA		subsize
+
+* check size for SUB
+subsize:
+
+* check if byte
+    MOVE.W	#%0000000111000000, D5
+    AND.W	D6, D5
+    CMP		#%0000000000000000, D5
+    BEQ		subbyte			        *size: byte and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000100000000, D5
+    BEQ		subbyte			        *size: byte and operation: < ea > – Dn ? < ea >
+
+* check if word 
+    CMP		#%0000000001000000, D5
+    BEQ		subword			        *size: word and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000101000000, D5
+    BEQ		subword			        *size: word and operation: < ea > – Dn ? < ea >
+
+* check if long 
+    CMP		#%0000000010000000, D5
+    BEQ		sublong			        *size: long and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000110000000, D5
+    BEQ		sublong			        *size: long and operation: < ea > – Dn ? < ea >
+
+    BRA		invalid
+
+subbyte:
+    LEA		BYTE, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+    subword:
+    LEA		WORD, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+    sublong:
+    LEA		LONG, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |0100| register | 111 | <ea> mode | <ea> register |
 *------LEA-------
+LEA:
+    MOVE.W	#%1111000111000000, D5
+    AND.W 	D6, D5
+    CMP		#%0100000111000000, D5
+    BNE		bgt
 
-    
+* display LEA opcode
+    LEA		LEA, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
 *------AND-------
 
 
@@ -408,23 +475,92 @@ rormemrot:
 
 *------RACHEL-----
 
+* Bcc format: |0110| Condition | 8-bit Displacement
 *------BGT-------
+* NOT COMPLETE (need to find condition field)
 
+BGT:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		ble
 
+* display BGT opcode
+    LEA		BGT, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* Bcc format: |0110| Condition | 8-bit Displacement
 *------BLE-------
+* NOT COMPLETE (need to find condition field)
 
+BLE:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		beq
 
+* display BLE opcode
+    LEA		BLE, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* Bcc format: |0110| Condition | 8-bit Displacement
 *------BEQ-------
+* NOT COMPLETE (need to find condition field)
 
+BEQ:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		jsr
 
+* display BEQ opcode
+    LEA		BEQ, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |0100111010| <ea> mode | <ea> register |
 *------JSR-------
 
+JSR:
+    MOVE.W	#%1111111111000000, D5
+    AND.W	D6, D5
+    CMP		#%0100111010000000, D5
+    BNE		rts
 
+* display JSR opcode
+    LEA		JSR, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |0100111001110101|
 *------RTS-------
 
+RTS:
+    MOVE.W	#%1111111111111111, D5
+    AND.W	D6, D5
+    CMP		#%0100111001110101, D5
+    BNE		bra
 
+* display RTS opcode
+    LEA		RTS, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |01100000| 8-bit displacement |
 *------BRA-------
+BRA:
 
+    MOVE.W	#%1111111100000000, D5
+    AND.W	D6, D5
+    CMP 	#%0110000000000000, D5
+    BNE		invalid				        *reached end of all opcode tests
+
+* display BRA opcode
+    LEA		BRA, A1
+    MOVE.B	#14, D0
+    TRAP	#15
 
 
 **************** EFFECTIVE ADDRESSING ********************
@@ -476,25 +612,30 @@ rormemrot:
 CR  EQU $0D
 LF  EQU $0A
 
-WMSG         DC.B    'Welcome to Group 3s X68000 Dissassembler!',CR,LF
-             DC.B    'First make sure to load your program into memory',CR,LF
-             DC.B    'Next enter two memory addresses, the start and end of',CR,LF
-             DC.B    'your program',CR,LF,0
-SPACE        DC.B    '',CR,LF,0
+WMSG         DC.B   'Welcome to Group 3s X68000 Dissassembler!',CR,LF
+             DC.B   'First make sure to load your program into memory',CR,LF
+             DC.B   'Next enter two memory addresses, the start and end of',CR,LF
+             DC.B   'your program',CR,LF,0
+SPACE        DC.B   ' ',CR,LF,0
 ENTERMSG1    DC.B   'Enter starting address: ',0
-ENTERMSG2    DC.B   'Enter ending address: ',0 
+ENTERMSG2    DC.B   'Enter ending address: ',0
+NUM          DC.B   '#',0
+DREG         DC.B   'D',0
+BIGSPACE     DC.B   '    ',0
+BYTE         DC.B   'B ',0
+WORD         DC.B   'W ',0
+LONG         DC.B   'L ',0
+COMMA        DC.B   ',',0
+SUB		     DC.B	'SUB.', 0
+LEA		     DC.B	'LEA ', 0
+BGT		     DC.B	'BGT ', 0
+BLE		     DC.B	'BLE ', 0
+BEQ		     DC.B	'BEQ ', 0
+JSR		     DC.B	'JSR ', 0
+RTS		     DC.B	'RTS ', 0
+BRA		     DC.B	'BRA ', 0
   
     END     START
-
-
-
-
-
-
-
-
-
-
 
 
 
