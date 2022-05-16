@@ -625,6 +625,8 @@ rormemrot:
 
 **************** EFFECTIVE ADDRESSING ********************
 
+* In D2 will be stored the <ea> to use
+
 ea:
     RTS
 
@@ -634,11 +636,21 @@ ea:
 
 *----DATA REGISTER DIRECT---
 eadrd:
-    LEA msgdatar
+    LEA msgdatar,A1
+    MOVE.B  #14,D0
+    TRAP #15
+    
+    MOVE.W D2,
+    
+    RTS
 
 *----IMEDIATE DATA------
 eaid:
-
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP #15
+    
+    RTS
 
 
 
@@ -701,10 +713,14 @@ msglong      DC.B   '.L',0
 msgdatar     DC.B   'D',0
 msgim        DC.B   '#',0
 msgaddrr     DC.B   'A',0
+msgcomma        DC.B   ',',0
 
 
   
     END     START
+
+
+
 
 
 
