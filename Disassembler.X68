@@ -451,6 +451,368 @@ addasize:
     
     BRA printlong 
     
+ 
+*----------------END Liam-----------------------    
+    
+
+
+
+
+*------SUB-------
+
+* format:
+* |1001| register | opmode | <ea> mode | <ea> register
+SUB:
+    MOVE.W	#%1111000000000000, D5
+    AND.W	D6, D5
+    CMP		#%1001000000000000, D5
+    BNE		lea
+
+* display opcode SUB
+    LEA		SUB, A1
+    MOVE.B	#14, D0
+    TRAP		#15
+
+    JSR		subsize
+
+
+* check size for SUB
+subsize:
+
+* check if byte
+    MOVE.W	#%0000000111000000, D5
+    AND.W	D6, D5
+    CMP		#%0000000000000000, D5
+    BEQ		printbyte		        *size: byte and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000100000000, D5
+    BEQ		printbyte			        *size: byte and operation: < ea > – Dn ? < ea >
+
+* check if word 
+    CMP		#%0000000001000000, D5
+    BEQ		printword		        *size: word and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000101000000, D5
+    BEQ		printword			        *size: word and operation: < ea > – Dn ? < ea >
+
+* check if long 
+    CMP		#%0000000010000000, D5
+    BEQ		printlong		        *size: long and operation: Dn – < ea > ? Dn
+
+    CMP		#%0000000110000000, D5
+    BEQ		printlong		        *size: long and operation: < ea > – Dn ? < ea >
+
+    BRA		invalid
+
+* format: |0100| register | 111 | <ea> mode | <ea> register |
+*------LEA-------
+LEA:
+    MOVE.W	#%1111000111000000, D5
+    AND.W 	D6, D5
+    CMP		#%0100000111000000, D5
+    BNE		lslregshift
+
+* display LEA opcode
+    LEA		LEA, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+* ---------- RACHEL ---------------
+
+*-------- JACOB -------------------
+
+*------AND-------
+and:
+
+*------OR-------
+or:
+
+*------NOT-------
+not:
+
+*----- LSL REGISTER SHIFT -------
+* format (register shift) LSL #<data>,Dy or LSL Dx,Dy
+* |1110|count/register|1|size|i/r|01|register|
+
+lslregshift:
+    MOVE.W  #%1111000100011000,D5   *move binary to AND into D5
+    AND.W   D6,D5
+    CMP     #%1110000100001000,D5   *compare if is correct opcode
+    BNE     lsrregshift             *if not equal branch to next opcode
+    
+    LEA     LSL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR     jsize
+    
+    
+*-------- LSR REGISTER SHIFT -------
+* format (register shift) LSR #<data>,Dy or LSR Dx,Dy
+* |1110|count/register|0|size|i/r|01|register|
+
+lsrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000001000,D5
+    BNE     aslregshift
+    
+    LEA     LSR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR     jsize
+
+    * Go to ea here
+    
+
+*-------- ASL REGISTER SHIFT -------    
+* format (register shift) ASL #<data>,Dy or ASL Dx,Dy
+* |1110|count/register|1|size|i/r|00|register|
+
+aslregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100000000,D5
+    BNE     asrregshift
+
+    LEA     ASL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR     jsize
+
+    * Go to ea here
+    
+
+*-------- ASR REGISTER SHIFT -------
+* format (register shift) ASR #<data>,Dy or ASR Dx,Dy
+* |1110|count/register|0|size|i/r|00|register|
+
+asrregshift:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000000000,D5
+    BNE     rolregrot
+    
+    LEA     ASR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR     jsize
+
+    * Go to ea here
+    
+
+*-------- ROL REGISTER ROTATE -------
+* format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
+* |1110|count/register|1|size|i/r|11|register|
+
+rolregrot:
+    MOVE.W  #%1110000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000100011000,D5
+    BNE     rorregrot
+    
+    LEA     ROL,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR     jsize
+    
+    * Go to ea here
+
+*-------- ROR REGISTER ROTATE -------    
+* format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
+* |1110|count/register|0|size|i/r|11|register|
+
+rorregrot:
+    MOVE.W  #%1111000100011000,D5
+    AND.W   D6,D5
+    CMP     #%1110000000011000,D5
+    BNE     lslmemshift
+    
+    LEA     ROR,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    JSR     jsize
+
+    * Go to ea here
+
+jsize:
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000000000000,D5
+    BEQ     printbyte
+    
+    CMP     #%0000000001000000,D5
+    BEQ     printword
+    
+    CMP     #%0000000010000000,D5
+    BEQ     printlong
+    
+    BRA     invalid
+
+
+*--------LSL MEMORY SHIFT--------
+* format (memory shift) LSL <ea>
+* |1110001111|EA mode|EA register|
+
+lslmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110001111000000,D5
+    BNE     lsrmemshift
+
+
+*--------LSR MEMORY SHIFT--------
+* format (memory shift) LSR <ea>
+* |1110001011|EA mode|EA register|
+
+lsrmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110001011000000,D5
+    BNE     aslmemshift
+
+
+*--------ASL MEMORY SHIFT--------
+* format (memory shift) ASL <ea>
+* |1110000111|EA mode|EA register|
+
+aslmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110000111000000,D5
+    BNE     asrmemshift
+
+
+*--------ASR MEMORY SHIFT--------
+* format (memory shift) ASR <ea>
+* |1110000011|EA mode|EA register|
+
+asrmemshift:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110000011000000,D5
+    BNE     rolmemrot
+
+
+*--------ROL MEMORY SHIFT--------
+* format (memory rotate) ROL <ea>
+* |1110011111|EA mode|EA register|
+
+rolmemrot:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110011111000000,D5
+    BNE     rormemrot
+
+
+*--------ROR MEMORY SHIFT--------
+* format (memory rotate) ROR <ea>
+* |1110011011|EA mode|EA register|
+
+rormemrot:
+    MOVE.W  #%1111111111000000,D5
+    AND.W   D6,D5
+    CMP     #%1110011011000000,D5
+    BNE     BGT
+
+* ---------- END of JACOB -----------
+
+
+*------RACHEL-----
+
+* Bcc format: |0110| Condition | 8-bit Displacement
+*------BGT-------
+* NOT COMPLETE (need to find condition field)
+
+BGT:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		BLE
+
+* display BGT opcode
+    LEA		BGT, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* Bcc format: |0110| Condition | 8-bit Displacement
+*------BLE-------
+* NOT COMPLETE (need to find condition field)
+
+BLE:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		BEQ
+
+* display BLE opcode
+    LEA		BLE, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* Bcc format: |0110| Condition | 8-bit Displacement
+*------BEQ-------
+* NOT COMPLETE (need to find condition field)
+
+BEQ:
+    MOVE.W	#%1111____00000000, D5
+    AND.W	D6, D5
+    CMP		#%0110____00000000, D5
+    BNE		JSR
+
+* display BEQ opcode
+    LEA		BEQ, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |0100111010| <ea> mode | <ea> register |
+*------JSR-------
+
+JSR:
+    MOVE.W	#%1111111111000000, D5
+    AND.W	D6, D5
+    CMP		#%0100111010000000, D5
+    BNE		RTS
+
+* display JSR opcode
+    LEA		JSR, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |0100111001110101|
+*------RTS-------
+
+RTS:
+    MOVE.W	#%1111111111111111, D5
+    AND.W	D6, D5
+    CMP		#%0100111001110101, D5
+    BNE		BRA
+
+* display RTS opcode
+    LEA		RTS, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* format: |01100000| 8-bit displacement |
+*------BRA-------
+BRA:
+
+    MOVE.W	#%1111111100000000, D5
+    AND.W	D6, D5
+    CMP 	#%0110000000000000, D5
+    BNE		invalid				        *reached end of all opcode tests
+
+* display BRA opcode
+    LEA		BRA, A1
+    MOVE.B	#14, D0
+    TRAP	#15
+
+* ------- END of RACHEL --------------
+
 *------- Printing of sections --------
 printbyte:
 
@@ -468,168 +830,10 @@ printlong
     LEA msglong,A1
     MOVE.B  #14,D0
     TRAP    #15
-    RTS    
-*----------------END Liam-----------------------    
+    RTS   
 
-*------SUB-------
-sub:
-
-*------LEA-------
-lea:
-    
-*------AND-------
-and:
-
-*------OR-------
-or:
-
-*------NOT-------
-not:
-
-
-
-*-----JACOB------
-
-*------LSL------- (pg 217)
-
-* format (register shift) LSL #<data>,Dy or LSL Dx,Dy
-* |1110|count/register|1|size|i/r|01|register|
-lslregshift:
-    MOVE.W  #%1111000100011000,D5   *move binary to AND into D5
-    AND.W   D6,D5
-    CMP     #%1110000100001000,D5   *compare if is correct opcode
-    BNE     lslmemshift             *if not equal branch to next opcode
-    
-    * check size
-
-
-* format (memory shift) LSL <ea>
-* |1110001111|EA mode|EA register|
-lslmemshift:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110001111000000,D5
-    BNE     lsrregshift
-    
-
-*------LSR------- (pg 217)
-
-* format (register shift) LSR #<data>,Dy or LSR Dx,Dy
-* |1110|count/register|0|size|i/r|01|register|
-lsrregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000001000,D5
-    BNE     lsrmemshift
-
-* format (memory shift) LSR <ea>
-* |1110001011|EA mode|EA register|
-lsrmemshift:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110001011000000,D5
-    BNE     aslregshift
-
-*------ASL------- (pg 125)
-
-* format (register shift) ASL #<data>,Dy or ASL Dx,Dy
-* |1110|count/register|1|size|i/r|00|register|
-aslregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000100000000,D5
-    BNE     aslmemshift
-
-* format (memory shift) ASL <ea>
-* |1110000111|EA mode|EA register|
-aslmemshift:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110000111000000,D5
-    BNE     asrregshift
-
-*------ASR------- (pg 125)
-
-* format (register shift) ASR #<data>,Dy or ASR Dx,Dy
-* |1110|count/register|0|size|i/r|00|register|
-asrregshift:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000000000,D5
-    BNE     asrmemshift
-
-* format (memory shift) ASR <ea>
-* |1110000011|EA mode|EA register|
-asrmemshift:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110000011000000,D5
-    BNE     rolregrot
-
-*------ROL------- (pg 264)
-
-* format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
-* |1110|count/register|1|size|i/r|11|register|
-rolregrot:
-    MOVE.W  #%1110000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000100011000,D5
-    BNE     rolmemrot
-
-* format (memory rotate) ROL <ea>
-* |1110011111|EA mode|EA register|
-rolmemrot:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110011111000000,D5
-    BNE     rorregrot
-
-*------ROR------- (pg 264)
-
-* format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
-* |1110|count/register|0|size|i/r|11|register|
-rorregrot:
-    MOVE.W  #%1111000100011000,D5
-    AND.W   D6,D5
-    CMP     #%1110000000011000,D5
-    BNE     rormemrot
-
-* format (memory rotate) ROR <ea>
-* |1110011011|EA mode|EA register|
-rormemrot:
-    MOVE.W  #%1111111111000000,D5
-    AND.W   D6,D5
-    CMP     #%1110011011000000,D5
-    *BNE     BGT
-
-*------RACHEL-----
-
-*------BGT-------
-
-
-*------BLE-------
-
-
-*------BEQ-------
-
-
-*------JSR-------
-
-
-*------RTS-------
-
-
-*------BRA-------
-
-
-
-**************** EFFECTIVE ADDRESSING ********************
-
-* In D2 will be stored the <ea> to use
 
 ea:
-    RTS
-
 * decoding individual EA's
 
 *------Liam-------
@@ -640,7 +844,7 @@ eadrd:
     MOVE.B  #14,D0
     TRAP #15
     
-    MOVE.W D2,
+    
     
     RTS
 
@@ -706,6 +910,13 @@ msgadda      DC.B   'ADDA',0
 msgaddq      DC.B   'ADDQ',0
 msgnop       DC.B   'NOP',0
 
+LSL          DC.B    'LSL',0
+LSR          DC.B    'LSR',0
+ASL          DC.B    'ASL',0
+ASR          DC.B    'ASR',0
+ROL          DC.B    'ROL',0
+ROR          DC.B    'ROR',0
+
 msgbyte      DC.B   '.B',0
 msgword      DC.B   '.W',0
 msglong      DC.B   '.L',0
@@ -713,7 +924,8 @@ msglong      DC.B   '.L',0
 msgdatar     DC.B   'D',0
 msgim        DC.B   '#',0
 msgaddrr     DC.B   'A',0
-msgcomma        DC.B   ',',0
+msgcomma     DC.B   ',',0
+
 
 
   
