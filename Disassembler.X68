@@ -388,6 +388,7 @@ move:
     
     JSR ea  
     
+    * Print comma
     LEA msgcomma,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -422,13 +423,44 @@ move:
 moveq:
     CLR D5
     MOVE.W  #%1111000100000000,D5
-    AND.W  D6,D5
+    AND.W   D6,D5
     CMP.W   #%0111000000000000,D5
     BNE movem
     
     LEA msgmoveq,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+
+    
+    LEA msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000000011111111,D1
+    AND.W   D6,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #7,D5
+    LSR.W   #2,D5
+    MOVE.W  D5,D3
     
     JSR ea
     
@@ -446,6 +478,7 @@ movem: ** NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TRAP    #15
     
     JSR movemsize
+    
     
     JSR ea *gonna have to do something more than this
     
@@ -1112,6 +1145,7 @@ msgdatar     DC.B   'D',0
 msgim        DC.B   '#',0
 msgaddrr     DC.B   'A',0
 msgcomma     DC.B   ',',0
+msgspace     DC.B   ' ',0
 
 msgregnum    DS.B   1
 
@@ -1119,6 +1153,7 @@ msgregnum    DS.B   1
 
   
     END     START
+
 
 
 
