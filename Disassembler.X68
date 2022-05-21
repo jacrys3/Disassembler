@@ -296,7 +296,45 @@ movea:
 
     JSR movesize  
     
+    *Second part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000000111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3
+    
     JSR ea
+    
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    *Firest part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5 
+    LSR.W   #3,D5
+    ADD.W   D5,D3
+   
+    
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    LSR.W   #3,D5
+    ADD.W  D5,D3
+    
+    
+    JSR ea
+    
+    
+
 
     RTS
 *------MOVE-------
@@ -313,7 +351,46 @@ move:
    
     JSR movesize
     
+    *Second part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000000111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3
+    
+    JSR ea  
+    
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    *Firest part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5 
+    LSR.W   #3,D5 
+    ADD.W   D5,D3
+  
+    
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    LSR.W   #3,D5
+    ADD.W  D5,D3
+    
+    
     JSR ea
+   
+
+   
+
    
     RTS
 *------MOVEQ-------
@@ -835,7 +912,9 @@ printlong
 
 ea:
 * decoding individual EA's
-* EA code information is stored in D3
+* EA code information is stored in D3 as | EA Mode | EA Register | 
+* EA Code in D3 is read from the LSB in D3
+* the bit before EA Mode is used for extra checks such as immediate data
 *------Liam-------
 
 *----DATA REGISTER DIRECT---
@@ -844,11 +923,23 @@ eadrd:
 
     * Check D3
 
+    CLR D5
+    MOVE.W  #%0000000001111000,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000000000000,D5
+    BNE     eaid
+
+
     LEA msgdatar,A1
     MOVE.B  #14,D0
     TRAP #15
     
+    CLR D1
+    MOVE.W  #%0000000000000111,D1
+    AND.W   D3,D1
     
+    MOVE.B  #3,D0
+    TRAP    #15
     
     RTS
 
@@ -922,19 +1013,22 @@ ASR          DC.B    'ASR',0
 ROL          DC.B    'ROL',0
 ROR          DC.B    'ROR',0
 
-msgbyte      DC.B   '.B',0
-msgword      DC.B   '.W',0
-msglong      DC.B   '.L',0
+msgbyte      DC.B   '.B ',0
+msgword      DC.B   '.W ',0
+msglong      DC.B   '.L ',0
 
 msgdatar     DC.B   'D',0
 msgim        DC.B   '#',0
 msgaddrr     DC.B   'A',0
 msgcomma     DC.B   ',',0
 
+msgregnum    DS.B   1
+
 
 
   
     END     START
+
 
 
 
