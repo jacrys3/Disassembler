@@ -729,9 +729,9 @@ rormemrot:
 * NOT COMPLETE (need to find condition field)
 
 BGT:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%011000000000, D5 *** NOT COMPLETE
     BNE		BLE
 
 * display BGT opcode
@@ -744,9 +744,9 @@ BGT:
 * NOT COMPLETE (need to find condition field)
 
 BLE:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%011000000000, D5 *** NOT COMPLETE
     BNE		BEQ
 
 * display BLE opcode
@@ -759,9 +759,9 @@ BLE:
 * NOT COMPLETE (need to find condition field)
 
 BEQ:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%011000000000, D5 *** NOT COMPLETE
     BNE		JSR
 
 * display BEQ opcode
@@ -835,11 +835,15 @@ printlong
 
 ea:
 * decoding individual EA's
-
+* EA code information is stored in D3
 *------Liam-------
 
 *----DATA REGISTER DIRECT---
+
 eadrd:
+
+    * Check D3
+
     LEA msgdatar,A1
     MOVE.B  #14,D0
     TRAP #15
@@ -850,6 +854,7 @@ eadrd:
 
 *----IMEDIATE DATA------
 eaid:
+    * Check D3
     LEA msgim,A1
     MOVE.B  #14,D0
     TRAP #15
@@ -930,6 +935,7 @@ msgcomma     DC.B   ',',0
 
   
     END     START
+
 
 
 
