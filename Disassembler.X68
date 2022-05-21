@@ -507,9 +507,78 @@ add:
     
     JSR addsize
     
+    LEA msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    BRA addopchoice 
+    
+    RTS
+addopchoice:
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000100000000,D5
+    BGE     addc2
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #7,D5
+    LSR.W   #2,D5
+    MOVE.W  D5,D3
+    
     JSR ea
     
     RTS
+
+addc2:
+     
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #7,D5
+    LSR.W   #2,D5
+    MOVE.W  D5,D3
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+     
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000100000000,D5
+    BGE     addc2
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea 
+     
+    RTS
+    
 *------ADDA-------
 adda:
 

@@ -1,10 +1,14 @@
     ORG $4000
     
 START:
-    MOVEQ   #3,D1
+    ADD.W   D3,(A1)
     
 
     END START
+
+
+
+
 
 
 
