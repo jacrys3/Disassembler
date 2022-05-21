@@ -283,6 +283,7 @@ nop:
     RTS
   
 *------MOVEA-------
+* immediate is MODE: 111 | REGISTER: 100
 movea:
     CLR D5
     MOVE.W  #%1100000111000000,D5
@@ -298,14 +299,23 @@ movea:
     
     *Second part of EA
     CLR D3
+    *Add source register to D3
     CLR D5
     MOVE.W  #%0000000000000111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
     
+    *Add source mode to D3
     CLR D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D6,D5
+    ADD.W   D5,D3
+    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
     ADD.W   D5,D3
     
     JSR ea
@@ -330,6 +340,12 @@ movea:
     LSR.W   #3,D5
     ADD.W  D5,D3
     
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3
     
     JSR ea
     
@@ -363,6 +379,13 @@ move:
     AND.W   D6,D5
     ADD.W   D5,D3
     
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3
+    
     JSR ea  
     
     LEA msgcomma,A1
@@ -385,12 +408,14 @@ move:
     LSR.W   #3,D5
     ADD.W  D5,D3
     
-    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3    
+
     JSR ea
-   
-
-   
-
    
     RTS
 *------MOVEQ-------
@@ -912,9 +937,8 @@ printlong
 
 ea:
 * decoding individual EA's
-* EA code information is stored in D3 as | EA Mode | EA Register | 
+* EA code information is stored in D3 as 2bit SIZE | 3bit EA Mode | 3bit EA Register | 
 * EA Code in D3 is read from the LSB in D3
-* the bit before EA Mode is used for extra checks such as immediate data
 *------Liam-------
 
 *----DATA REGISTER DIRECT---
@@ -924,7 +948,7 @@ eadrd:
     * Check D3
 
     CLR D5
-    MOVE.W  #%0000000001111000,D5
+    MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000000000,D5
     BNE     eaid
@@ -945,22 +969,81 @@ eadrd:
 
 *----IMEDIATE DATA------
 eaid:
+    
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000000111100,D5
+    BNE     eaard
+    
     * Check D3
     LEA msgim,A1
     MOVE.B  #14,D0
     TRAP #15
     
+    * load correct data to D1
+    CLR D1
+    JSR moveidata
+    
+    *print data
+    MOVE.B  #3,D0
+    TRAP    #15
+    
     RTS
 
+* Moves the appropriate immediate data to D1
+moveidata:
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000000000000,D5
+    BNE     lword
 
+    *byte
+    MOVE.W  (A5)+,D1
+    
+    RTS
+lword:
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000011000000,D5
+    BNE     llong
+    
+    *word
+    MOVE.W  (A5)+,D1
+    
+    RTS
+llong:
+
+    *long
+    MOVE.L  (A5)+,D1
+    RTS
 
 *----LEANNE-----
 
 *----ADDRESS REGISTER DIRECT---
+eaard:
 
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000000001000,D5
+    BNE     eaard
+    
+
+    RTS
 
 *----ADDRESS REGISTER INDIRECT----
+eaari:
 
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D3,D5
+    CMP.W   #%0000000000010000,D5
+    BNE     eaard
+
+    RTS
 
 
 
@@ -968,10 +1051,14 @@ eaid:
 *-----JACOB-----
 
 *----ADDRESS REGISTER INDIRECT WITH POST INCREMENTING----
+eapi:
 
+    RTS
 
-*----ADDRESS REGISTER INDIRECT WITH PRE INCREMENTING----
+*----ADDRESS REGISTER INDIRECT WITH PRE DECREMENTING----
+eapd:
 
+    RTS
 
 
 
@@ -979,10 +1066,14 @@ eaid:
 *----RACHEL-----
 
 *----ABSOLUTE LONG ADDRESS----
+eaala:
 
+    RTS
 
 *----ABSOLUTE WORD ADDRESS----
+eaawa:
 
+    RTS
 
 ******************* CONSTANTS ************************
 
