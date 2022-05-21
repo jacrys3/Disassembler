@@ -1,12 +1,13 @@
     ORG $4000
     
 START:
-    MOVE.L  #$83,D3
-    MOVE.B  #$33,D3
-    MOVE.W  #$93,D3
+    MOVE.L  #$83,D1
+    MOVE.B  #$33,D2
+    MOVE.W  #$93,D7
     
 
     END START
+
 
 
 

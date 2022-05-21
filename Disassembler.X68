@@ -996,7 +996,7 @@ moveidata:
     CLR D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D3,D5
-    CMP.W   #%0000000000000000,D5
+    CMP.W   #%0000000001000000,D5
     BNE     lword
 
     *byte
@@ -1119,6 +1119,7 @@ msgregnum    DS.B   1
 
   
     END     START
+
 
 
 
