@@ -1,11 +1,14 @@
     ORG $4000
     
 START:
-    TRAP    #15
-    MOVE.L  #3,D2
+    BGT hello
+    
+hello:   
+    
     
 
     END START
+
 
 
 

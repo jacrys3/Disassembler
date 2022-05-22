@@ -982,12 +982,11 @@ rormemrot:
 
 * Bcc format: |0110| Condition | 8-bit Displacement
 *------BGT-------
-* NOT COMPLETE (need to find condition field)
 
 BGT:
-    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
+    MOVE.W	#%1111111100000000, D5 
     AND.W	D6, D5
-    CMP		#%011000000000, D5 *** NOT COMPLETE
+    CMP		#%011011100000, D5 
     BNE		BLE
 
 * display BGT opcode
@@ -995,15 +994,16 @@ BGT:
     MOVE.B	#14, D0
     TRAP	#15
 
+    * need to display displacement here
+
     RTS
 * Bcc format: |0110| Condition | 8-bit Displacement
 *------BLE-------
-* NOT COMPLETE (need to find condition field)
 
 BLE:
-    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
+    MOVE.W	#%1111111100000000, D5 
     AND.W	D6, D5
-    CMP		#%011000000000, D5 *** NOT COMPLETE
+    CMP		#%011011110000, D5 
     BNE		BEQ
 
 * display BLE opcode
@@ -1011,21 +1011,24 @@ BLE:
     MOVE.B	#14, D0
     TRAP	#15
 
+    * need to display displacement here
+
     RTS
 * Bcc format: |0110| Condition | 8-bit Displacement
 *------BEQ-------
-* NOT COMPLETE (need to find condition field)
 
 BEQ:
-    MOVE.W	#%111100000000, D5 *** NOT COMPLETE
+    MOVE.W	#%1111111100000000, D5 
     AND.W	D6, D5
-    CMP		#%011000000000, D5 *** NOT COMPLETE
+    CMP		#%011001110000, D5 
     BNE		JSR
 
 * display BEQ opcode
     LEA		BEQ, A1
     MOVE.B	#14, D0
     TRAP	#15
+    
+    * need to display displacement here
 
     RTS
 * format: |0100111010| <ea> mode | <ea> register |
@@ -1041,6 +1044,8 @@ JSR:
     LEA		JSR, A1
     MOVE.B	#14, D0
     TRAP	#15
+    
+    * EA here
 
     RTS
 * format: |0100111001110101|
@@ -1311,6 +1316,7 @@ msgregnum    DS.B   1
 
   
     END     START
+
 
 
 
