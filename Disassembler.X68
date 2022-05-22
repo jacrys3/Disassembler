@@ -255,7 +255,7 @@ f:
         
 invalid:
     
-    JMP     END
+    RTS
 
 ******************** OPCODES *************************
 
@@ -511,6 +511,9 @@ add:
     MOVE.B  #14,D0
     TRAP    #15
 
+    CLR D2
+    MOVE.W  #%0000000000000000,D2
+
     BRA addopchoice 
     
     RTS
@@ -536,11 +539,12 @@ addopchoice:
     
     CLR D3
     CLR D5
-    MOVE.W  #%0000111000000000,D5
-    AND.W   D6,D5
-    LSR.W   #7,D5
-    LSR.W   #2,D5
-    MOVE.W  D5,D3
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    ADD.W   D2,D3 * adds the type of register
     
     JSR ea
     
@@ -549,12 +553,12 @@ addopchoice:
 addc2:
      
     CLR D3
-    CLR D5
-    MOVE.W  #%0000111000000000,D5
-    AND.W   D6,D5
-    LSR.W   #7,D5
-    LSR.W   #2,D5
-    MOVE.W  D5,D3
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    ADD.W   D2,D3 * adds the type of register
     
     JSR ea
     
@@ -588,7 +592,10 @@ adda:
     
     JSR addasize
 
-    JSR ea
+    CLR D2
+    MOVE.W  #%0000000000001000,D2
+
+    JSR addopchoice
 
     RTS
 
@@ -604,7 +611,36 @@ addq:
     MOVE.B  #14,D0
     TRAP    #15
     
+    
+    JSR addqsize
+    
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000111000000000,D1
+    AND.W   D6,D1
+    LSR.W   #7,D1
+    LSR.W   #2,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
     JSR ea
+    
     RTS
 
 *--- Sizes ---
@@ -654,6 +690,18 @@ addasize:
     BEQ printword
     
     BRA printlong 
+
+addqsize:
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    
+    CMP.W   #%0000000000000000,D5
+    BEQ printbyte
+    
+    CMP.W   #%0000000001000000,D5 
+    BEQ printword
+    
+    BRA printlong
     
  
 *----------------END Liam-----------------------    
@@ -749,6 +797,7 @@ lslregshift:
     
     JSR     jsize
     
+    RTS
     
 *-------- LSR REGISTER SHIFT -------
 * format (register shift) LSR #<data>,Dy or LSR Dx,Dy
@@ -768,6 +817,7 @@ lsrregshift:
 
     * Go to ea here
     
+    RTS
 
 *-------- ASL REGISTER SHIFT -------    
 * format (register shift) ASL #<data>,Dy or ASL Dx,Dy
@@ -787,6 +837,7 @@ aslregshift:
 
     * Go to ea here
     
+    RTS
 
 *-------- ASR REGISTER SHIFT -------
 * format (register shift) ASR #<data>,Dy or ASR Dx,Dy
@@ -805,7 +856,7 @@ asrregshift:
     JSR     jsize
 
     * Go to ea here
-    
+    RTS
 
 *-------- ROL REGISTER ROTATE -------
 * format (register rotate) ROL #<data>,Dy or ROL Dx,Dy
@@ -824,6 +875,7 @@ rolregrot:
     JSR     jsize
     
     * Go to ea here
+    RTS
 
 *-------- ROR REGISTER ROTATE -------    
 * format (register rotate) ROR #<data>,Dy or ROR Dx,Dy
@@ -842,6 +894,7 @@ rorregrot:
     JSR     jsize
 
     * Go to ea here
+    RTS
 
 jsize:
     MOVE.W  #%0000000011000000,D5
@@ -869,6 +922,7 @@ lslmemshift:
     BNE     lsrmemshift
 
 
+    RTS
 *--------LSR MEMORY SHIFT--------
 * format (memory shift) LSR <ea>
 * |1110001011|EA mode|EA register|
@@ -879,7 +933,7 @@ lsrmemshift:
     CMP     #%1110001011000000,D5
     BNE     aslmemshift
 
-
+    RTS
 *--------ASL MEMORY SHIFT--------
 * format (memory shift) ASL <ea>
 * |1110000111|EA mode|EA register|
@@ -890,7 +944,7 @@ aslmemshift:
     CMP     #%1110000111000000,D5
     BNE     asrmemshift
 
-
+    RTS
 *--------ASR MEMORY SHIFT--------
 * format (memory shift) ASR <ea>
 * |1110000011|EA mode|EA register|
@@ -901,7 +955,7 @@ asrmemshift:
     CMP     #%1110000011000000,D5
     BNE     rolmemrot
 
-
+    RTS
 *--------ROL MEMORY SHIFT--------
 * format (memory rotate) ROL <ea>
 * |1110011111|EA mode|EA register|
@@ -912,7 +966,7 @@ rolmemrot:
     CMP     #%1110011111000000,D5
     BNE     rormemrot
 
-
+    RTS
 *--------ROR MEMORY SHIFT--------
 * format (memory rotate) ROR <ea>
 * |1110011011|EA mode|EA register|
@@ -923,6 +977,7 @@ rormemrot:
     CMP     #%1110011011000000,D5
     BNE     BGT
 
+    RTS
 * ---------- END of JACOB -----------
 
 
@@ -943,6 +998,7 @@ BGT:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * Bcc format: |0110| Condition | 8-bit Displacement
 *------BLE-------
 * NOT COMPLETE (need to find condition field)
@@ -958,6 +1014,7 @@ BLE:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * Bcc format: |0110| Condition | 8-bit Displacement
 *------BEQ-------
 * NOT COMPLETE (need to find condition field)
@@ -973,6 +1030,7 @@ BEQ:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * format: |0100111010| <ea> mode | <ea> register |
 *------JSR-------
 
@@ -987,6 +1045,7 @@ JSR:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * format: |0100111001110101|
 *------RTS-------
 
@@ -1001,6 +1060,7 @@ RTS:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * format: |01100000| 8-bit displacement |
 *------BRA-------
 BRA:
@@ -1015,6 +1075,7 @@ BRA:
     MOVE.B	#14, D0
     TRAP	#15
 
+    RTS
 * ------- END of RACHEL --------------
 
 *------- Printing of sections --------
@@ -1222,6 +1283,7 @@ msgregnum    DS.B   1
 
   
     END     START
+
 
 
 

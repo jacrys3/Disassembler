@@ -1,10 +1,12 @@
     ORG $4000
     
 START:
-    ADD.W   D3,(A1)
+    ADDQ.W  #4,D2
     
 
     END START
+
+
 
 
 
