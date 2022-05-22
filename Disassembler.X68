@@ -905,10 +905,7 @@ jsize:
     CMP     #%0000000001000000,D5
     BEQ     printword
     
-    CMP     #%0000000010000000,D5
-    BEQ     printlong
-    
-    BRA     invalid
+    BRA     printlong * possibly a problemo?
 
 
 *--------LSL MEMORY SHIFT--------
@@ -1182,8 +1179,6 @@ llong:
     *long
     MOVE.L  (A5)+,D1
     RTS
-
-*----LEANNE-----
 
 *----ADDRESS REGISTER DIRECT---
 eaard:

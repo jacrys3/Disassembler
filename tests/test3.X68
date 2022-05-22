@@ -1,10 +1,15 @@
     ORG $4000
     
 START:
-    ADDQ.W  #4,(A5)
+    TRAP    #15
+    MOVE.L  #3,D2
     
 
     END START
+
+
+
+
 
 
 
