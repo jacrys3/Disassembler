@@ -1192,8 +1192,18 @@ eaard:
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000001000,D5
-    BNE     eaard
+    BNE     eaari
     
+    LEA     msgaddrr,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000000000000111,D1
+    AND.W   D3,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
 
     RTS
 
@@ -1204,7 +1214,26 @@ eaari:
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000010000,D5
-    BNE     eaard
+    BNE     eaapi
+
+    LEA     msgparopen,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    LEA     msgaddrr,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000000000000111,D1
+    AND.W   D3,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    LEA     msgparclose,A1
+    MOVE.B  #14,D0
+    TRAP    #15
 
     RTS
 
@@ -1214,12 +1243,12 @@ eaari:
 *-----JACOB-----
 
 *----ADDRESS REGISTER INDIRECT WITH POST INCREMENTING----
-eapi:
+eaapi:
 
     RTS
 
 *----ADDRESS REGISTER INDIRECT WITH PRE DECREMENTING----
-eapd:
+eaapd:
 
     RTS
 
@@ -1276,6 +1305,10 @@ msgim        DC.B   '#',0
 msgaddrr     DC.B   'A',0
 msgcomma     DC.B   ',',0
 msgspace     DC.B   ' ',0
+msgparopen   DC.B   '(',0
+msgparclose  DC.B   ')',0
+msgplus      DC.B   '+',0
+msgminus     DC.B   '-',0
 
 msgregnum    DS.B   1
 
@@ -1283,6 +1316,7 @@ msgregnum    DS.B   1
 
   
     END     START
+
 
 
 
