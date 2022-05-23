@@ -10,7 +10,7 @@
 **************** START ***************************
 *comment
 START:
-    BRA     MainLoop
+    
     LEA     WMSG,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -61,16 +61,7 @@ START:
 
 MainLoop:
     * put instruction into D6
-    MOVE.W  #$EC7A,D6
     * print out address first, then print rest out in opcode section...
-    MOVE.W  #2000,D1
-    MOVE.B  #3,D0
-    TRAP    #15
-    
-    LEA     SPACE,A1
-    MOVE.B  #14,D0
-    TRAP    #15
-    
     MOVE.W  (A5)+,D6
     JSR opcodes
     
@@ -78,7 +69,7 @@ MainLoop:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CMPA    D4,A5
+    CMP.L    D4,A5
     BLE     MainLoop
     
     BRA END
@@ -264,7 +255,7 @@ f:
         
 invalid:
     
-    JMP     END
+    RTS
 
 ******************** OPCODES *************************
 
@@ -305,7 +296,60 @@ movea:
 
     JSR movesize  
     
+    *Second part of EA
+    CLR D3
+    *Add source register to D3
+    CLR D5
+    MOVE.W  #%0000000000000111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    *Add source mode to D3
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3
+    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3
+    
     JSR ea
+    
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    *Firest part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5 
+    LSR.W   #3,D5
+    ADD.W   D5,D3
+   
+    
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    LSR.W   #3,D5
+    ADD.W  D5,D3
+    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3
+    
+    JSR ea
+    
+    
+
 
     RTS
 *------MOVE-------
@@ -322,6 +366,55 @@ move:
    
     JSR movesize
     
+    *Second part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000000111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    CLR D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3
+    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3
+    
+    JSR ea  
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    *Firest part of EA
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5 
+    LSR.W   #3,D5 
+    ADD.W   D5,D3
+  
+    
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    LSR.W   #3,D5
+    ADD.W  D5,D3
+    
+    *Add Size to D3
+    CLR D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    LSR.W   #6,D5
+    ADD.W   D5,D3    
+
     JSR ea
    
     RTS
@@ -329,13 +422,44 @@ move:
 moveq:
     CLR D5
     MOVE.W  #%1111000100000000,D5
-    AND.W  D6,D5
+    AND.W   D6,D5
     CMP.W   #%0111000000000000,D5
     BNE movem
     
     LEA msgmoveq,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+
+    
+    LEA msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000000011111111,D1
+    AND.W   D6,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    
+    MOVE.W  #%0000111000000000,D5
+    AND.W   D6,D5
+    LSR.W   #7,D5
+    LSR.W   #2,D5
+    MOVE.W  D5,D3
     
     JSR ea
     
@@ -353,6 +477,7 @@ movem: ** NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     TRAP    #15
     
     JSR movemsize
+    
     
     JSR ea *gonna have to do something more than this
     
@@ -381,8 +506,75 @@ add:
     
     JSR addsize
     
+    LEA msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    CLR D2
+    MOVE.W  #%0000000000000000,D2
+
+    BRA addopchoice 
+    
+    RTS
+
+addopchoice:
+    CLR D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000100000000,D5
+    BGE     addc2
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
     JSR ea
     
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    ADD.W   D2,D3 * adds the type of register
+    
+    JSR ea
+    
+    RTS
+
+addc2:
+     
+    CLR D3
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    ADD.W   D2,D3 * adds the type of register
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea 
+     
     RTS
 *------ADDA-------
 adda:
@@ -393,7 +585,10 @@ adda:
     
     JSR addasize
 
-    JSR ea
+    CLR D2
+    MOVE.W  #%0000000000001000,D2
+
+    JSR addopchoice
 
     RTS
 
@@ -409,7 +604,36 @@ addq:
     MOVE.B  #14,D0
     TRAP    #15
     
+    
+    JSR addqsize
+    
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D1
+    MOVE.W  #%0000111000000000,D1
+    AND.W   D6,D1
+    LSR.W   #7,D1
+    LSR.W   #2,D1
+    
+    MOVE.B  #3,D0
+    TRAP    #15
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
     JSR ea
+    
     RTS
 
 *--- Sizes ---
@@ -459,7 +683,18 @@ addasize:
     BEQ printword
     
     BRA printlong 
+
+addqsize:
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
     
+    CMP.W   #%0000000000000000,D5
+    BEQ printbyte
+    
+    CMP.W   #%0000000001000000,D5 
+    BEQ printword
+    
+    BRA printlong
  
 *----------------END Liam-----------------------    
 
@@ -518,7 +753,7 @@ LEA:
     BNE		lslregshift
 
 * display LEA opcode
-    LEA		LEA, A1
+    LEA		msglea, A1
     MOVE.B	#14, D0
     TRAP	#15
 
@@ -531,7 +766,7 @@ and:
     CMP     #%1100000000000000,D5
     BNE     or
     
-    LEA     OR,A1
+    LEA     msgand,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -570,7 +805,7 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     CMP     #%1000000000000000,D5
     BNE     not
     
-    LEA     OR,A1
+    LEA     msgor,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -605,7 +840,7 @@ aoc2:
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
-    LSR.2   #2,D3
+    LSR.W   #2,D3
     
     JSR     ea  
     
@@ -646,7 +881,7 @@ not:
     CMP     #%0100011000000000,D5
     BNE     lslregshift
     
-    LEA     NOT,A1
+    LEA     msgnot,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -669,7 +904,7 @@ lslregshift:
     CMP     #%1110000100001000,D5   *compare if is correct opcode
     BNE     lsrregshift             *if not equal branch to next opcode
     
-    LEA     LSL,A1
+    LEA     msglsl,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -694,7 +929,7 @@ lsrregshift:
     CMP     #%1110000000001000,D5
     BNE     aslregshift
     
-    LEA     LSR,A1
+    LEA     msglsr,A1
     MOVE.B  #14,D0
     TRAP    #15
 
@@ -720,7 +955,7 @@ aslregshift:
     CMP     #%1110000100000000,D5
     BNE     asrregshift
 
-    LEA     ASL,A1
+    LEA     msgasl,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -745,7 +980,7 @@ asrregshift:
     CMP     #%1110000000000000,D5
     BNE     rolregrot
     
-    LEA     ASR,A1
+    LEA     msgasr,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -771,7 +1006,7 @@ rolregrot:
     CMP     #%1110000100011000,D5
     BNE     rorregrot
     
-    LEA     ROL,A1
+    LEA     msgrol,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -796,7 +1031,7 @@ rorregrot:
     CMP     #%1110000000011000,D5
     BNE     lslmemshift
     
-    LEA     ROR,A1
+    LEA     msgror,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -880,11 +1115,11 @@ lslmemshift:
     CMP     #%1110001111000000,D5
     BNE     lsrmemshift
     
-    LEA     LSL,A1
+    LEA     msglsl,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -905,11 +1140,11 @@ lsrmemshift:
     CMP     #%1110001011000000,D5
     BNE     aslmemshift
     
-    LEA     LSR,A1
+    LEA     msglsr,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -930,11 +1165,11 @@ aslmemshift:
     CMP     #%1110000111000000,D5
     BNE     asrmemshift
     
-    LEA     ASL,A1
+    LEA     msgasl,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -955,11 +1190,11 @@ asrmemshift:
     CMP     #%1110000011000000,D5
     BNE     rolmemrot
     
-    LEA     ASR,A1
+    LEA     msgasr,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -980,11 +1215,11 @@ rolmemrot:
     CMP     #%1110011111000000,D5
     BNE     rormemrot
     
-    LEA     ROL,A1
+    LEA     msgrol,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1005,11 +1240,11 @@ rormemrot:
     CMP     #%1110011011000000,D5
     BNE     BGT
     
-    LEA     ROR,A1
+    LEA     msgror,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     SPACE,A1
+    LEA     msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1025,50 +1260,55 @@ rormemrot:
 
 *------RACHEL-----
 
-* Bcc format: |0110| Condition | 8-bit Displacement
+* Bcc format: |0110| 1110 | 8-bit Displacement
 *------BGT-------
-* NOT COMPLETE (need to find condition field)
 
 BGT:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%1111111100000000, D5
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%0110111000000000, D5
     BNE		BLE
 
 * display BGT opcode
-    LEA		BGT, A1
+    LEA		msgbgt, A1
     MOVE.B	#14, D0
     TRAP	#15
 
-* Bcc format: |0110| Condition | 8-bit Displacement
+    
+    RTS
+
+* Bcc format: |0110| 1111 | 8-bit Displacement
 *------BLE-------
-* NOT COMPLETE (need to find condition field)
 
 BLE:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%1111111100000000, D5
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%0110111100000000, D5
     BNE		BEQ
 
 * display BLE opcode
-    LEA		BLE, A1
+    LEA		msgble, A1
     MOVE.B	#14, D0
     TRAP	#15
 
-* Bcc format: |0110| Condition | 8-bit Displacement
+    RTS
+
+* Bcc format: |0110| 0111 | 8-bit Displacement
 *------BEQ-------
-* NOT COMPLETE (need to find condition field)
 
 BEQ:
-    MOVE.W	#%1111____00000000, D5
+    MOVE.W	#%1111111100000000, D5
     AND.W	D6, D5
-    CMP		#%0110____00000000, D5
+    CMP		#%0110011100000000, D5
     BNE		JSR
 
 * display BEQ opcode
-    LEA		BEQ, A1
+    LEA		msgbeq, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    RTS
+
 
 * format: |0100111010| <ea> mode | <ea> register |
 *------JSR-------
@@ -1080,9 +1320,11 @@ JSR:
     BNE		RTS
 
 * display JSR opcode
-    LEA		JSR, A1
+    LEA		msgjsr, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    RTS
 
 * format: |0100111001110101|
 *------RTS-------
@@ -1094,9 +1336,11 @@ RTS:
     BNE		BRA
 
 * display RTS opcode
-    LEA		RTS, A1
+    LEA		msgrts, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    RTS
 
 * format: |01100000| 8-bit displacement |
 *------BRA-------
@@ -1108,9 +1352,11 @@ BRA:
     BNE		invalid				        *reached end of all opcode tests
 
 * display BRA opcode
-    LEA		BRA, A1
+    LEA		msgbra, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    RTS
 
 * ------- END of RACHEL --------------
 
@@ -1127,12 +1373,12 @@ printword:
     MOVE.B  #14,D0
     TRAP    #15
     RTS
-printlong
+
+printlong:
     LEA msglong,A1
     MOVE.B  #14,D0
     TRAP    #15
     RTS   
-    
     
 ea:
 
@@ -1242,7 +1488,7 @@ eaari:
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000010000,D5
-    BNE     eaapi
+    BNE     eaadrpost
 
     LEA     msgparopen,A1
     MOVE.B  #14,D0
@@ -1274,13 +1520,13 @@ eaadrpost:
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000011000,D5
-    BNE     eaapre
+    BNE     eaadrpre
 
-    LEA     msparopen, A1
+    LEA     msgparopen, A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msaddrr, A1
+    LEA     msgaddrr, A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1289,7 +1535,7 @@ eaadrpost:
     AND.W   D3,D1
     
     MOVE.B  #3,D0
-    TRAP    $15
+    TRAP    #15
     
     LEA     msgparclose,A1
     MOVE.B  #14,D0
@@ -1314,11 +1560,11 @@ eaadrpre:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msparopen, A1
+    LEA     msgparopen, A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msaddrr, A1
+    LEA     msgaddrr, A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1327,7 +1573,7 @@ eaadrpre:
     AND.W   D3,D1
     
     MOVE.B  #3,D0
-    TRAP    $15
+    TRAP    #15
     
     LEA     msgparclose,A1
     MOVE.B  #14,D0
@@ -1337,11 +1583,31 @@ eaadrpre:
 
 *----RACHEL-----
 
-*----ABSOLUTE LONG ADDRESS----
+* | 111 | 001 |
+eaala:
+    CLR D5
+    MOVE.W  #%0000000000111111, D5
+    AND.W   D3, D5
+    CMP.W   #%0000000000111001, D5
+    BNE     eaawa
+    
+    LEA     msglong, A1
+    MOVE.B  #14, D0
+    TRAP    #15
 
+    RTS
 
 *----ABSOLUTE WORD ADDRESS----
-
+* | 111 | 000 |
+eaawa:
+    CMP.W   #%0000000000111000, D5
+    BNE     invalid
+    
+    LEA     msgword, A1
+    MOVE.B  #14, D0
+    TRAP    #15
+    
+    RTS
 
 ******************* CONSTANTS ************************
 
@@ -1352,7 +1618,7 @@ WMSG         DC.B   'Welcome to Group 3s X68000 Dissassembler!',CR,LF
              DC.B   'First make sure to load your program into memory',CR,LF
              DC.B   'Next enter two memory addresses, the start and end of',CR,LF
              DC.B   'your program',CR,LF,0
-SPACE        DC.B   ' ',CR,LF,0
+SPACE        DC.B   '',CR,LF,0
 ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
 
@@ -1365,15 +1631,25 @@ msgadda      DC.B   'ADDA',0
 msgaddq      DC.B   'ADDQ',0
 msgnop       DC.B   'NOP',0
 
-LSL          DC.B   'LSL',0
-LSR          DC.B   'LSR',0
-ASL          DC.B   'ASL',0
-ASR          DC.B   'ASR',0
-ROL          DC.B   'ROL',0
-ROR          DC.B   'ROR',0
-NOT          DC.B   'NOT',0
-OR           DC.B   'OR',0
-AND          DC.B   'AND',0
+msglsl       DC.B   'LSL',0
+msglsr       DC.B   'LSR',0
+msgasl       DC.B   'ASL',0
+msgasr       DC.B   'ASR',0
+msgrol       DC.B   'ROL',0
+msgror       DC.B   'ROR',0
+msgnot       DC.B   'NOT',0
+msgor        DC.B   'OR',0
+msgand       DC.B   'AND',0
+
+msgsub       DC.B   'SUB',0
+msglea       DC.B   'LEA',0
+msgbra       DC.B   'BRA',0
+msgjsr       DC.B   'JSR',0
+msgrts       DC.B   'RTS',0
+msgbeq       DC.B   'BEQ',0
+msgble       DC.B   'BLE',0
+msgbgt       DC.B   'BGT',0
+
 
 msgbyte      DC.B   '.B ',0
 msgword      DC.B   '.W ',0
