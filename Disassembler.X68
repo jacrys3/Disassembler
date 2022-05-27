@@ -54,6 +54,9 @@ START:
     CLR D2
     
     MOVE.L  D3,A5
+
+    MOVE.B #0,counter
+
     BRA MainLoop
     
 
@@ -62,6 +65,7 @@ START:
 MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
+
     MOVE.W  (A5)+,D6
     JSR opcodes
     
@@ -69,15 +73,38 @@ MainLoop:
     MOVE.B  #14,D0
     TRAP    #15
     
+    CLR D1 
+    MOVE.B  counter,D1
+    ADDQ    #1,D1
+    MOVE.B  D1,counter
+
+    * Wait for next user input check
+    CMP.B   #%00011100,counter
+    BEQ     enterwait
+
     CMP.L    D4,A5
     BLE     MainLoop
-    
+   
     BRA END
   
 END:
     MOVE.B  #9,D0
     TRAP    #15
   
+
+enterwait:
+
+    MOVE.B #0,counter
+    LEA  msgenter,A1
+    TRAP    #15
+
+    MOVE.B  #5,D0
+    TRAP    #15
+
+    CMP.B   #$0D,D1
+    BEQ     MainLoop 
+
+    BRA     enterwait
 
 ************** CONVERT INPUT TO HEX ******************
 
@@ -252,9 +279,20 @@ f:
     ADDQ    #1,A1
     ADDQ    #1,D2
     BRA     decode
-        
+
 invalid:
+* display invalid message
+    LEA     msginvalid, A1
+    MOVE.B  #14, D0
+    TRAP    #15
+
+* display uncoded hex
+    MOVE.W   D5, D1
+    MOVE.B   #3, D0
+    TRAP     #15
+    *#1,D2
     
+        
     RTS
 
 ******************** OPCODES *************************
@@ -347,9 +385,6 @@ movea:
     ADD.W   D5,D3
     
     JSR ea
-    
-    
-
 
     RTS
 *------MOVE-------
@@ -588,9 +623,35 @@ adda:
     CLR D2
     MOVE.W  #%0000000000001000,D2
 
-    JSR addopchoice
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    ADD.W   D2,D3 * adds the type of register
+    
+    JSR ea
 
     RTS
+
+
+addac:
+
 
 *------ADDQ-------
 addq:
@@ -647,6 +708,7 @@ movesize:
     BEQ printword
     
     BRA printlong 
+
     
 movemsize:
     MOVE.W  #%0000000001000000,D5
@@ -656,6 +718,7 @@ movemsize:
     BEQ printword
     
     BRA printlong
+
     
 addsize:
     MOVE.W  #%0000000111000000,D5
@@ -709,12 +772,19 @@ SUB:
     BNE		lea
 
 * display opcode SUB
-    LEA		SUB, A1
+    LEA		msgsub, A1
     MOVE.B	#14, D0
     TRAP		#15
 
     JSR		subsize
 
+    LEA    msgspace, A1
+    MOVE.B #14, D0
+    TRAP   #15 
+
+    JSR ea
+
+    RTS
 
 * check size for SUB
 subsize:
@@ -722,24 +792,24 @@ subsize:
 * check if byte
     MOVE.W	#%0000000111000000, D5
     AND.W	D6, D5
-    CMP		#%0000000000000000, D5
+    CMP.W	#%0000000000000000, D5
     BEQ		printbyte		        *size: byte and operation: Dn – < ea > ? Dn
 
-    CMP		#%0000000100000000, D5
+    CMP.W	#%0000000100000000, D5
     BEQ		printbyte			        *size: byte and operation: < ea > – Dn ? < ea >
 
 * check if word 
-    CMP		#%0000000001000000, D5
+    CMP.W	#%0000000001000000, D5
     BEQ		printword		        *size: word and operation: Dn – < ea > ? Dn
 
-    CMP		#%0000000101000000, D5
+    CMP.W	#%0000000101000000, D5
     BEQ		printword			        *size: word and operation: < ea > – Dn ? < ea >
 
 * check if long 
-    CMP		#%0000000010000000, D5
+    CMP.W	#%0000000010000000, D5
     BEQ		printlong		        *size: long and operation: Dn – < ea > ? Dn
 
-    CMP		#%0000000110000000, D5
+    CMP.W	#%0000000110000000, D5
     BEQ		printlong		        *size: long and operation: < ea > – Dn ? < ea >
 
     BRA		invalid
@@ -756,6 +826,19 @@ LEA:
     LEA		msglea, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    CLR D5
+    CLR D3
+    MOVE.W #%0000000000111111, D3
+    AND.W  D6, D3
+
+    LEA    msgspace, A1
+    MOVE.B #14, D0
+    TRAP   #15
+
+    JSR ea
+
+    RTS
 
 *-------- JACOB -------------------
 
@@ -1274,6 +1357,11 @@ BGT:
     MOVE.B	#14, D0
     TRAP	#15
 
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR bccdisplacement
     
     RTS
 
@@ -1291,6 +1379,12 @@ BLE:
     MOVE.B	#14, D0
     TRAP	#15
 
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR bccdisplacement
+
     RTS
 
 * Bcc format: |0110| 0111 | 8-bit Displacement
@@ -1306,6 +1400,12 @@ BEQ:
     LEA		msgbeq, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR bccdisplacement
 
     RTS
 
@@ -1323,6 +1423,17 @@ JSR:
     LEA		msgjsr, A1
     MOVE.B	#14, D0
     TRAP	#15
+
+    CLR D5
+    CLR D3
+    MOVE.W  #%0000000000111111, D3
+    AND.W   D6,D3
+
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR ea
 
     RTS
 
@@ -1356,6 +1467,56 @@ BRA:
     MOVE.B	#14, D0
     TRAP	#15
 
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
+    JSR bccdisplacement
+
+    RTS
+
+
+bccdisplacement:
+    
+    CLR D5
+    MOVE.W  #%0000000011111111,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000000000000,D5
+    BEQ     sbit
+
+    CMP.W   #%0000000011111111,D5
+    BEQ     tbit
+
+    * 8 bit
+    MOVE.B  D5,D1
+
+    MOVE.B  #3,D0
+    TRAP    #15
+
+    RTS
+
+sbit:
+
+    * 16 bit
+    MOVE.W  (A5)+,D1
+
+    MOVE.B  #3,D0
+    TRAP    #15
+
+    RTS 
+
+tbit:
+
+    * 32 bit
+    MOVE.L  (A5)+,D1
+
+    MOVE.B  #3,D0
+    TRAP    #15
+
     RTS
 
 * ------- END of RACHEL --------------
@@ -1379,7 +1540,9 @@ printlong:
     MOVE.B  #14,D0
     TRAP    #15
     RTS   
-    
+
+
+* -------- EA -------------- *  
 ea:
 
 eadrd:
@@ -1591,23 +1754,31 @@ eaala:
     CMP.W   #%0000000000111001, D5
     BNE     eaawa
     
-    LEA     msglong, A1
-    MOVE.B  #14, D0
-    TRAP    #15
+    *long
+    MOVE.L  (A5)+,D1
 
+    MOVE.B  #3,D0
+    TRAP    #15
+    
     RTS
 
 *----ABSOLUTE WORD ADDRESS----
 * | 111 | 000 |
 eaawa:
+    CLR D5
+    MOVE.W  #%0000000000111111, D5
+    AND.W   D3, D5
     CMP.W   #%0000000000111000, D5
     BNE     invalid
     
-    LEA     msgword, A1
-    MOVE.B  #14, D0
+    *word
+    MOVE.W  (A5)+,D1
+
+    MOVE.B  #3,D0
     TRAP    #15
-    
+
     RTS
+    
 
 ******************* CONSTANTS ************************
 
@@ -1663,7 +1834,12 @@ msgspace     DC.B   ' ',0
 msgparopen   DC.B   '(',0
 msgparclose  DC.B   ')',0
 msgplus      DC.B   '+',0
-msgminus     DC.B   '-',0
+msgminus     DC.B   '-',0 DATA $', 00
+
+msgenter     DC.B   'Press Enter to Continue',CR,LF,0
+msginvalid   DC.B   'DATA',0
+
+counter      DS.B   1
 
 
 
