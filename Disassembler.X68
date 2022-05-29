@@ -473,8 +473,7 @@ moveq:
     MOVE.B  #14,D0
     TRAP    #15
     
-
-    
+ 
     LEA msgspace,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -774,9 +773,10 @@ addqsize:
 * format:
 * |1001| register | opmode | <ea> mode | <ea> register
 SUB:
+    CLR D5
     MOVE.W	#%1111000000000000, D5
     AND.W	D6, D5
-    CMP		#%1001000000000000, D5
+    CMP.W   #%1001000000000000, D5
     BNE		lea
 
 * display opcode SUB
@@ -790,16 +790,79 @@ SUB:
     MOVE.B #14, D0
     TRAP   #15 
 
-    JSR ea
+    JSR subchoice
+    
 
     RTS
+    
+subchoice:
+    
+    CLR D5
+    MOVE.W  #%0000000111000000, D5
+    AND.W   D6,D5
+    CMP.W   #%0000000100000000, D5
+    BGE     subc2
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    JSR ea
+
+    RTS 
+    
+subc2:
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    
+    JSR ea
+    
+    * Print comma
+    LEA msgcomma,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    CLR D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    MOVE.W  D5,D3
+    
+    JSR ea
+    
+    
+    RTS
+
 
 * check size for SUB
 subsize:
 
 * check if byte
+    CLR D5
     MOVE.W	#%0000000111000000, D5
     AND.W	D6, D5
+    
     CMP.W	#%0000000000000000, D5
     BEQ		printbyte		        *size: byte and operation: Dn – < ea > ? Dn
 
@@ -1916,6 +1979,7 @@ msgparopen   DC.B   '(',0
 msgparclose  DC.B   ')',0
 msgplus      DC.B   '+',0
 msgminus     DC.B   '-',0
+
 msghex       DC.B   '$',0
 
 msgenter     DC.B   'Press Enter to Continue',CR,LF,0
