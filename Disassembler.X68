@@ -8,7 +8,6 @@
     ORG     $1000
 
 **************** START ***************************
-*comment
 START:
     
     LEA     WMSG,A1
@@ -65,6 +64,15 @@ START:
 MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
+    MOVE.W  A5,D1
+    CLR D2
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
+    TRAP    #15
+    
+    LEA     msgspace,A1
+    MOVE.B  #14,D0
+    TRAP    #15
 
     MOVE.W  (A5)+,D6
     JSR opcodes
@@ -82,7 +90,7 @@ MainLoop:
     CMP.B   #%00011100,counter
     BEQ     enterwait
 
-    CMP.L    D4,A5
+    CMP.L   D4,A5
     BLE     MainLoop
    
     BRA END
@@ -283,14 +291,15 @@ f:
 invalid:
 * display invalid message
     LEA     msginvalid, A1
-    MOVE.B  #14, D0
+    MOVE.B  #14,D0
     TRAP    #15
 
 * display uncoded hex
-    MOVE.W   D5, D1
-    MOVE.B   #3, D0
-    TRAP     #15
-    *#1,D2
+    MOVE.W  D5, D1
+    CLR D2
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
+    TRAP    #15
     
         
     RTS
@@ -302,7 +311,6 @@ invalid:
 * each opcode should branch to the next if it is not that specific opcode
 
 opcodes:
-*-----get instruction from memory, put in D6 (NEED TO DO THIS BEFORE EVERY AND)-----
 
 *------Liam-------
 
@@ -885,21 +893,33 @@ LEA:
     CMP		#%0100000111000000, D5
     BNE		lslregshift
 
-* display LEA opcode
     LEA		msglea, A1
     MOVE.B	#14, D0
     TRAP	#15
+    
+    LEA     msgspace, A1
+    MOVE.B  #14, D0
+    TRAP    #15
 
     CLR D5
     CLR D3
-    MOVE.W #%0000000000111111, D3
-    AND.W  D6, D3
+    MOVE.W  #%0000000000111111, D3
+    AND.W   D6,D3
 
-    LEA    msgspace, A1
-    MOVE.B #14, D0
-    TRAP   #15
-
-    JSR ea
+    JSR     ea
+    
+    LEA     msgcomma, A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D3
+    MOVE.W  #%0000111000000000,D3
+    AND.W   D6,D3
+    LSR.W   #7,D3
+    LSR.W   #2,D3
+    ADD.W   #%0000000000001000,D3
+    
+    JSR     ea
 
     RTS
 
@@ -1050,6 +1070,12 @@ lslregshift:
     CMP     #%1110000100001000,D5   *compare if is correct opcode
     BNE     lsrregshift             *if not equal branch to next opcode
     
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
+    
     LEA     msglsl,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -1074,6 +1100,12 @@ lsrregshift:
     AND.W   D6,D5
     CMP     #%1110000000001000,D5
     BNE     aslregshift
+    
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
     
     LEA     msglsr,A1
     MOVE.B  #14,D0
@@ -1100,6 +1132,12 @@ aslregshift:
     AND.W   D6,D5
     CMP     #%1110000100000000,D5
     BNE     asrregshift
+    
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
 
     LEA     msgasl,A1
     MOVE.B  #14,D0
@@ -1125,6 +1163,12 @@ asrregshift:
     AND.W   D6,D5
     CMP     #%1110000000000000,D5
     BNE     rolregrot
+    
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
     
     LEA     msgasr,A1
     MOVE.B  #14,D0
@@ -1152,6 +1196,12 @@ rolregrot:
     CMP     #%1110000100011000,D5
     BNE     rorregrot
     
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
+    
     LEA     msgrol,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -1176,6 +1226,12 @@ rorregrot:
     AND.W   D6,D5
     CMP     #%1110000000011000,D5
     BNE     lslmemshift
+    
+    CLR D5
+    MOVE.W  #%0000000011000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     lslmemshift
     
     LEA     msgror,A1
     MOVE.B  #14,D0
@@ -1261,11 +1317,13 @@ lslmemshift:
     CMP     #%1110001111000000,D5
     BNE     lsrmemshift
     
+    
+    
     LEA     msglsl,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msgspace,A1
+    LEA     msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1290,7 +1348,7 @@ lsrmemshift:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msgspace,A1
+    LEA     msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1315,7 +1373,7 @@ aslmemshift:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msgspace,A1
+    LEA     msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1340,7 +1398,7 @@ asrmemshift:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msgspace,A1
+    LEA     msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1365,7 +1423,7 @@ rolmemrot:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     msgspace,A1
+    LEA     msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1554,30 +1612,43 @@ bccdisplacement:
     CMP.W   #%0000000011111111,D5
     BEQ     tbit
 
-    * 8 bit
-    MOVE.B  D5,D1
+    LEA     msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
 
-    MOVE.B  #3,D0
+    MOVE.W  D5,D1
+    CLR D2
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
     TRAP    #15
 
     RTS
 
 sbit:
 
+    LEA     msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+
     * 16 bit
     MOVE.W  (A5)+,D1
-
-    MOVE.B  #3,D0
+    CLR D2
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
     TRAP    #15
 
     RTS 
 
 tbit:
 
+    LEA     msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
     * 32 bit
-    MOVE.L  (A5)+,D1
-
-    MOVE.B  #3,D0
+    MOVE.W  (A5)+,D1
+    CLR D2
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
     TRAP    #15
 
     RTS
@@ -1817,10 +1888,15 @@ eaala:
     CMP.W   #%0000000000111001, D5
     BNE     eaawa
     
-    *long
+    LEA     msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D2
     MOVE.L  (A5)+,D1
+    MOVE.B  #16,D2
 
-    MOVE.B  #3,D0
+    MOVE.B  #15,D0
     TRAP    #15
     
     RTS
@@ -1834,10 +1910,15 @@ eaawa:
     CMP.W   #%0000000000111000, D5
     BNE     invalid
     
-    *word
-    MOVE.W  (A5)+,D1
+    LEA     msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    CLR D2
+    MOVE.L  (A5)+,D1
+    MOVE.B  #16,D2
 
-    MOVE.B  #3,D0
+    MOVE.B  #15,D0
     TRAP    #15
 
     RTS
@@ -1899,8 +1980,10 @@ msgparclose  DC.B   ')',0
 msgplus      DC.B   '+',0
 msgminus     DC.B   '-',0
 
+msghex       DC.B   '$',0
+
 msgenter     DC.B   'Press Enter to Continue',CR,LF,0
-msginvalid   DC.B   'DATA',0
+msginvalid   DC.B   'DATA ',0
 
 counter      DS.B   1
 
