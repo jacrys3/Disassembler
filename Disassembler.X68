@@ -64,7 +64,7 @@ START:
 MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
-    MOVE.W  A5,D1
+    MOVE.L  A5,D1
     CLR D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -77,7 +77,7 @@ MainLoop:
     MOVE.W  (A5)+,D6
     JSR opcodes
     
-    LEA SPACE,A1
+    LEA     SPACE,A1
     MOVE.B  #14,D0
     TRAP    #15
     
@@ -1645,7 +1645,7 @@ tbit:
     MOVE.B  #14,D0
     TRAP    #15
     * 32 bit
-    MOVE.W  (A5)+,D1
+    MOVE.L  (A5)+,D1
     CLR D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -1895,7 +1895,6 @@ eaala:
     CLR D2
     MOVE.L  (A5)+,D1
     MOVE.B  #16,D2
-
     MOVE.B  #15,D0
     TRAP    #15
     
@@ -1915,7 +1914,7 @@ eaawa:
     TRAP    #15
     
     CLR D2
-    MOVE.L  (A5)+,D1
+    MOVE.W  (A5)+,D1
     MOVE.B  #16,D2
 
     MOVE.B  #15,D0
@@ -1991,6 +1990,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
