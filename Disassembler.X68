@@ -329,12 +329,12 @@ invalid:
     TRAP    #15
 
 * display uncoded hex
-    MOVE.W  D5, D1
+    MOVE.W  -(A5), D1
     CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
-    
+    MOVE.W  (A5)+,D1
         
     RTS
 
@@ -433,13 +433,19 @@ movea:
 move:
     CLR.L D5
     MOVE.W  #%1100000000000000,D5
-    AND.W  D6,D5
+    AND.W   D6,D5
     CMP.W   #%0000000000000000,D5
-    BNE moveq
+    BNE     moveq
     
-    LEA msgmove,A1
+    CLR.L D5
+    MOVE.W  #%0011000000000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000000000000,D5
+    BEQ     invalid
+    
+    LEA     msgmove,A1
     MOVE.B  #14,D0
-    TRAP    #15 
+    TRAP    #15
    
     JSR movesize
     
@@ -937,7 +943,7 @@ LEA:
     MOVE.W	#%1111000111000000, D5
     AND.W 	D6, D5
     CMP		#%0100000111000000, D5
-    BNE		lslregshift
+    BNE		and
 
     LEA		msglea, A1
     MOVE.B	#14, D0
@@ -978,6 +984,12 @@ and:
     CMP     #%1100000000000000,D5
     BNE     or
     
+    CLR.L D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000111000000,D5
+    BEQ     invalid
+    
     LEA     msgand,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -1016,6 +1028,12 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     AND.W   D6,D5
     CMP     #%1000000000000000,D5
     BNE     not
+    
+    CLR.L D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP     #%0000000011000000,D5
+    BEQ     invalid
     
     LEA     msgor,A1
     MOVE.B  #14,D0
@@ -2065,6 +2083,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
