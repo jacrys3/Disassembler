@@ -673,17 +673,14 @@ adda:
     MOVE.B  #14,D0
     TRAP    #15
     
+    CLR.L D3
     JSR addasize
 
-
-    CLR.L D2
-    MOVE.W  #%0000000000001000,D2
-
-    CLR.L D3
+    
     CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
-    MOVE.W  D5,D3
+    ADD.W  D5,D3
     
     JSR ea
     
@@ -701,7 +698,7 @@ adda:
     LSR.W   #2,D3
     
 
-    ADD.W   D2,D3 * adds the type of register
+    ADD.L   #%0000000000001000,D3 * adds the type of register
     
     JSR ea
 
@@ -1749,18 +1746,27 @@ printbyte:
     LEA msgbyte,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    ADD.L   #%0000000001000000,D3
+    
     RTS
 
 printword:
     LEA msgword,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    ADD.L   #%0000000011000000,D3
+    
     RTS
 
 printlong:
     LEA msglong,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    ADD.L   #%0000000010000000,D3
+    
     RTS   
 
 
@@ -1805,12 +1811,17 @@ eaid:
     MOVE.B  #14,D0
     TRAP #15
     
+    LEA msghex,A1
+    MOVE.B  #14,D0
+    TRAP #15
+    
     * load correct data to D1
     CLR.L D1
     JSR moveidata
     
     *print data
-    MOVE.B  #3,D0
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
     TRAP    #15
     
     RTS
@@ -2083,6 +2094,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 

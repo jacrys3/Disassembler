@@ -1,11 +1,11 @@
     ORG $4000
     
 START:
-    SUB.W   D1,A1
-    MOVEQ   #$3,D0
+    ADDA.W    #$1234,A2
     
 
     END START
+
 
 
 
