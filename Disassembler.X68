@@ -64,6 +64,9 @@ START:
 MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
+    
+    CLR D1
+
     MOVE.L  A5,D1
     CLR D2
     MOVE.B  #16,D2
@@ -482,11 +485,19 @@ moveq:
     MOVE.B  #14,D0
     TRAP    #15
     
+
+    LEA msghex,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
     CLR D1
+
     MOVE.W  #%0000000011111111,D1
     AND.W   D6,D1
     
-    MOVE.B  #3,D0
+    MOVE.B  #16,D2
+    MOVE.B  #15,D0
+
     TRAP    #15
     
     * Print comma
@@ -627,6 +638,7 @@ adda:
     
     JSR addasize
 
+
     CLR D2
     MOVE.W  #%0000000000001000,D2
 
@@ -639,6 +651,7 @@ adda:
     JSR ea
     
     * Print comma
+
     LEA msgcomma,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -650,6 +663,7 @@ adda:
     LSR.W   #7,D3
     LSR.W   #2,D3
     
+
     ADD.W   D2,D3 * adds the type of register
     
     JSR ea
@@ -764,6 +778,7 @@ addqsize:
     CMP.W   #%0000000001000000,D5 
     BEQ printword
     
+
     BRA printlong
  
 *----------------END Liam-----------------------    
@@ -1616,7 +1631,15 @@ bccdisplacement:
     MOVE.B  #14,D0
     TRAP    #15
 
+
+    CLR D2
+    MOVE.L  A5,D2
+
     MOVE.W  D5,D1
+    
+    ADD.W   D2,D1
+    
+
     CLR D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -1630,8 +1653,16 @@ sbit:
     MOVE.B  #14,D0
     TRAP    #15
 
+    
+    CLR D2
+    MOVE.L  A5,D2
+
     * 16 bit
+    CLR D1
     MOVE.W  (A5)+,D1
+    ADD.W   D2,D1
+    
+
     CLR D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -1644,8 +1675,16 @@ tbit:
     LEA     msghex,A1
     MOVE.B  #14,D0
     TRAP    #15
+    
+    CLR D2
+    MOVE.L  A5,D2
+    
+    
     * 32 bit
     MOVE.L  (A5)+,D1
+    ADD.L   D2,D1
+    
+
     CLR D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -1987,16 +2026,17 @@ msginvalid   DC.B   'DATA ',0
 counter      DS.B   1
 
 
+msghex       DC.B   '$',0
+
+msgenter     DC.B   'Press Enter to Continue',CR,LF,0
+msginvalid   DC.B   'DATA ',0
+
+counter      DS.B   1
+
+
 
   
     END     START
-
-
-
-
-
-
-
 
 
 
