@@ -16,26 +16,26 @@ START:
     
 ask:
     
-    CLR D1
-    CLR D2
-    CLR D3
-    CLR D4
-    CLR D5
-    CLR D6
-    CLR D7
+    CLR.L D1
+    CLR.L D2
+    CLR.L D3
+    CLR.L D4
+    CLR.L D5
+    CLR.L D6
+    CLR.L D7
 
     LEA msgask,A1
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.B  #5,D0
     TRAP    #15
     
     CMP.B   #$79,D1
     BNE     END
     
-    CLR D1
+    CLR.L D1
     
     LEA     SPACE,A1
     MOVE.B  #14,D0
@@ -52,8 +52,8 @@ ask:
     TRAP    #15
     
     
-    CLR D2
-    CLR D3
+    CLR.L D2
+    CLR.L D3
     JSR decode
     
     
@@ -69,19 +69,19 @@ ask:
     MOVE.B  #2,D0
     TRAP    #15
     
-    CLR D2
-    CLR D3
+    CLR.L D2
+    CLR.L D3
     JSR decode
     
-    CLR D5
+    CLR.L D5
     MOVE.L  D3,D5
     MOVE.L  D4,D3
-    CLR D4
+    CLR.L D4
     
     MOVE.L  D5,D4
     
-    CLR D5
-    CLR D2
+    CLR.L D5
+    CLR.L D2
     
     MOVE.L  D3,A5
 
@@ -96,10 +96,10 @@ MainLoop:
     * put instruction into D6
     * print out address first, then print rest out in opcode section...
     
-    CLR D1
+    CLR.L D1
 
     MOVE.L  A5,D1
-    CLR D2
+    CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
@@ -115,7 +115,7 @@ MainLoop:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1 
+    CLR.L D1 
     MOVE.B  counter,D1
     ADDQ    #1,D1
     MOVE.B  D1,counter
@@ -330,7 +330,7 @@ invalid:
 
 * display uncoded hex
     MOVE.W  D5, D1
-    CLR D2
+    CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
@@ -350,7 +350,7 @@ opcodes:
 
 *------NOP-------
 nop:
-    CLR D5
+    CLR.L D5
     MOVE.W  #$FFFF,D5
     AND.W  D6,D5
     CMP.W   #%0100111001110001,D5
@@ -364,7 +364,7 @@ nop:
   
 *------MOVEA-------
 movea:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1100000111000000,D5
     AND.W  D6,D5
     CMP.W   #%0000000001000000,D5
@@ -377,21 +377,21 @@ movea:
     JSR movesize  
     
     *Second part of EA
-    CLR D3
+    CLR.L D3
     *Add source register to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000000111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
     
     *Add source mode to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D6,D5
     ADD.W   D5,D3
     
     *Add Size to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0011000000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5
@@ -404,8 +404,8 @@ movea:
     TRAP    #15
     
     *Firest part of EA
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5 
@@ -413,14 +413,14 @@ movea:
     ADD.W   D5,D3
    
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000,D5
     AND.W   D6,D5
     LSR.W   #3,D5
     ADD.W  D5,D3
     
     *Add Size to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0011000000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5
@@ -431,7 +431,7 @@ movea:
     RTS
 *------MOVE-------
 move:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1100000000000000,D5
     AND.W  D6,D5
     CMP.W   #%0000000000000000,D5
@@ -444,19 +444,19 @@ move:
     JSR movesize
     
     *Second part of EA
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000000111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D6,D5
     ADD.W   D5,D3
     
     *Add Size to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0011000000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5
@@ -470,8 +470,8 @@ move:
     TRAP    #15
     
     *Firest part of EA
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5 
@@ -479,14 +479,14 @@ move:
     ADD.W   D5,D3
   
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000,D5
     AND.W   D6,D5
     LSR.W   #3,D5
     ADD.W  D5,D3
     
     *Add Size to D3
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0011000000000000,D5
     AND.W   D6,D5
     LSR.W   #6,D5
@@ -497,7 +497,7 @@ move:
     RTS
 *------MOVEQ-------
 moveq:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1111000100000000,D5
     AND.W   D6,D5
     CMP.W   #%0111000000000000,D5
@@ -521,7 +521,7 @@ moveq:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
 
     MOVE.W  #%0000000011111111,D1
     AND.W   D6,D1
@@ -536,8 +536,8 @@ moveq:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     
     MOVE.W  #%0000111000000000,D5
     AND.W   D6,D5
@@ -550,7 +550,7 @@ moveq:
     RTS
 *------MOVEM-------
 movem: ** NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1111101110000000,D5
     AND.W  D6,D5
     CMP.W   #%0100100010000000,D5
@@ -568,14 +568,14 @@ movem: ** NOT COMPLETE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     RTS
 *------ADD-------
 add:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1111000000000000,D5
     AND.W  D6,D5
     CMP.W   #%1101000000000000,D5
     BNE addq
     
     * If ADDA then go there
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1111000111000000,D5
     AND.W  D6,D5
     CMP.W   #%1101000011000000,D5
@@ -594,7 +594,7 @@ add:
     MOVE.B  #14,D0
     TRAP    #15
 
-    CLR D2
+    CLR.L D2
     MOVE.W  #%0000000000000000,D2
 
     BRA addopchoice 
@@ -602,14 +602,14 @@ add:
     RTS
 
 addopchoice:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000,D5
     AND.W   D6,D5
     CMP.W   #%0000000100000000,D5
     BGE     addc2
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
@@ -621,8 +621,8 @@ addopchoice:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -636,7 +636,7 @@ addopchoice:
 
 addc2:
      
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -651,8 +651,8 @@ addc2:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
@@ -670,11 +670,11 @@ adda:
     JSR addasize
 
 
-    CLR D2
+    CLR.L D2
     MOVE.W  #%0000000000001000,D2
 
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
@@ -687,8 +687,8 @@ adda:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -707,7 +707,7 @@ addac:
 
 *------ADDQ-------
 addq:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%1111000100000000,D5
     AND.W  D6,D5
     CMP.W   #%0101000000000000,D5
@@ -724,7 +724,7 @@ addq:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000111000000000,D1
     AND.W   D6,D1
     LSR.W   #7,D1
@@ -738,8 +738,8 @@ addq:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
@@ -819,7 +819,7 @@ addqsize:
 * format:
 * |1001| register | opmode | <ea> mode | <ea> register
 SUB:
-    CLR D5
+    CLR.L D5
     MOVE.W	#%1111000000000000, D5
     AND.W	D6, D5
     CMP.W   #%1001000000000000, D5
@@ -843,14 +843,14 @@ SUB:
     
 subchoice:
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000, D5
     AND.W   D6,D5
     CMP.W   #%0000000100000000, D5
     BGE     subc2
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
@@ -862,8 +862,8 @@ subchoice:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -875,8 +875,8 @@ subchoice:
     
 subc2:
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -889,8 +889,8 @@ subc2:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
-    CLR D5
+    CLR.L D3
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D6,D5
     MOVE.W  D5,D3
@@ -905,7 +905,7 @@ subc2:
 subsize:
 
 * check if byte
-    CLR D5
+    CLR.L D5
     MOVE.W	#%0000000111000000, D5
     AND.W	D6, D5
     
@@ -947,8 +947,8 @@ LEA:
     MOVE.B  #14, D0
     TRAP    #15
 
-    CLR D5
-    CLR D3
+    CLR.L D5
+    CLR.L D3
     MOVE.W  #%0000000000111111, D3
     AND.W   D6,D3
 
@@ -958,7 +958,7 @@ LEA:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -984,7 +984,7 @@ and:
     
     JSR     aosize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000,D5
     AND.W   D6,D5
     CMP     #%0000000100000000,D5
@@ -999,7 +999,7 @@ and:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -1023,7 +1023,7 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     
     JSR     aosize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000111000000,D5
     AND.W   D6,D5
     CMP     #%0000000100000000,D5
@@ -1038,7 +1038,7 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -1060,7 +1060,7 @@ aoc2:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000000000111111,D3
     AND.W   D6,D3
     
@@ -1116,7 +1116,7 @@ lslregshift:
     CMP     #%1110000100001000,D5   *compare if is correct opcode
     BNE     lsrregshift             *if not equal branch to next opcode
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1128,7 +1128,7 @@ lslregshift:
     
     JSR     jsize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1147,7 +1147,7 @@ lsrregshift:
     CMP     #%1110000000001000,D5
     BNE     aslregshift
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1159,7 +1159,7 @@ lsrregshift:
 
     JSR     jsize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1179,7 +1179,7 @@ aslregshift:
     CMP     #%1110000100000000,D5
     BNE     asrregshift
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1191,7 +1191,7 @@ aslregshift:
     
     JSR     jsize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1210,7 +1210,7 @@ asrregshift:
     CMP     #%1110000000000000,D5
     BNE     rolregrot
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1222,7 +1222,7 @@ asrregshift:
     
     JSR     jsize
 
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1242,7 +1242,7 @@ rolregrot:
     CMP     #%1110000100011000,D5
     BNE     rorregrot
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1254,7 +1254,7 @@ rolregrot:
     
     JSR     jsize
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1273,7 +1273,7 @@ rorregrot:
     CMP     #%1110000000011000,D5
     BNE     lslmemshift
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000011000000,D5
@@ -1285,7 +1285,7 @@ rorregrot:
     
     JSR     jsize
 
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000100000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1295,7 +1295,7 @@ rorregrot:
     RTS
 
 jsize:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D6,D5
     CMP     #%0000000000000000,D5
@@ -1310,7 +1310,7 @@ jsize:
     RTS
 
 shiftcount:
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D1
     AND.W   D6,D1
     LSR.W   #7,D1
@@ -1323,7 +1323,7 @@ shiftcount:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000000000000111,D3
     AND.W   D6,D3
     
@@ -1332,7 +1332,7 @@ shiftcount:
     RTS
 
 shiftreg:
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000111000000000,D3
     AND.W   D6,D3
     LSR.W   #7,D3
@@ -1344,7 +1344,7 @@ shiftreg:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D3
+    CLR.L D3
     MOVE.W  #%0000000000000111,D3
     AND.W   D6,D3
     
@@ -1591,8 +1591,8 @@ JSR:
     MOVE.B	#14, D0
     TRAP	#15
 
-    CLR D5
-    CLR D3
+    CLR.L D5
+    CLR.L D3
     MOVE.W  #%0000000000111111, D3
     AND.W   D6,D3
 
@@ -1649,7 +1649,7 @@ BRA:
 
 bccdisplacement:
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011111111,D5
     AND.W   D6,D5
     CMP.W   #%0000000000000000,D5
@@ -1663,7 +1663,7 @@ bccdisplacement:
     TRAP    #15
 
 
-    CLR D2
+    CLR.L D2
     MOVE.L  A5,D2
 
     MOVE.W  D5,D1
@@ -1671,7 +1671,7 @@ bccdisplacement:
     ADD.W   D2,D1
     
 
-    CLR D2
+    CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
@@ -1685,16 +1685,16 @@ sbit:
     TRAP    #15
 
     
-    CLR D2
+    CLR.L D2
     MOVE.L  A5,D2
 
     * 16 bit
-    CLR D1
+    CLR.L D1
     MOVE.W  (A5)+,D1
     ADD.W   D2,D1
     
 
-    CLR D2
+    CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
@@ -1707,7 +1707,7 @@ tbit:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D2
+    CLR.L D2
     MOVE.L  A5,D2
     
     
@@ -1716,7 +1716,7 @@ tbit:
     ADD.L   D2,D1
     
 
-    CLR D2
+    CLR.L D2
     MOVE.B  #16,D2
     MOVE.B  #15,D0
     TRAP    #15
@@ -1753,7 +1753,7 @@ eadrd:
 
     * Check D3
 
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000000000,D5
@@ -1764,7 +1764,7 @@ eadrd:
     MOVE.B  #14,D0
     TRAP #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000000000000111,D1
     AND.W   D3,D1
     
@@ -1776,7 +1776,7 @@ eadrd:
 *----IMEDIATE DATA------
 eaid:
     
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111111,D5
     AND.W   D3,D5
     CMP.W   #%0000000000111100,D5
@@ -1788,7 +1788,7 @@ eaid:
     TRAP #15
     
     * load correct data to D1
-    CLR D1
+    CLR.L D1
     JSR moveidata
     
     *print data
@@ -1799,7 +1799,7 @@ eaid:
 
 * Moves the appropriate immediate data to D1
 moveidata:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D3,D5
     CMP.W   #%0000000001000000,D5
@@ -1810,7 +1810,7 @@ moveidata:
     
     RTS
 lword:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000011000000,D5
     AND.W   D3,D5
     CMP.W   #%0000000011000000,D5
@@ -1829,7 +1829,7 @@ llong:
 *----ADDRESS REGISTER DIRECT---
 eaard:
 
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000001000,D5
@@ -1839,7 +1839,7 @@ eaard:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000000000000111,D1
     AND.W   D3,D1
     
@@ -1851,7 +1851,7 @@ eaard:
 *----ADDRESS REGISTER INDIRECT----
 eaari:
 
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000010000,D5
@@ -1865,7 +1865,7 @@ eaari:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000000000000111,D1
     AND.W   D3,D1
     
@@ -1883,7 +1883,7 @@ eaari:
 
 *----ADDRESS REGISTER INDIRECT WITH POST INCREMENTING----
 eaadrpost:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000011000,D5
@@ -1897,7 +1897,7 @@ eaadrpost:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000000000000111,D1
     AND.W   D3,D1
     
@@ -1917,7 +1917,7 @@ eaadrpost:
 
 *----ADDRESS REGISTER INDIRECT WITH PRE INCREMENTING----
 eaadrpre:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111000,D5
     AND.W   D3,D5
     CMP.W   #%0000000000100000,D5
@@ -1935,7 +1935,7 @@ eaadrpre:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D1
+    CLR.L D1
     MOVE.W  #%0000000000000111,D1
     AND.W   D3,D1
     
@@ -1952,7 +1952,7 @@ eaadrpre:
 
 * | 111 | 001 |
 eaala:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111111, D5
     AND.W   D3, D5
     CMP.W   #%0000000000111001, D5
@@ -1962,7 +1962,7 @@ eaala:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D2
+    CLR.L D2
     MOVE.L  (A5)+,D1
     MOVE.B  #16,D2
     MOVE.B  #15,D0
@@ -1973,7 +1973,7 @@ eaala:
 *----ABSOLUTE WORD ADDRESS----
 * | 111 | 000 |
 eaawa:
-    CLR D5
+    CLR.L D5
     MOVE.W  #%0000000000111111, D5
     AND.W   D3, D5
     CMP.W   #%0000000000111000, D5
@@ -1983,7 +1983,7 @@ eaawa:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR D2
+    CLR.L D2
     MOVE.W  (A5)+,D1
     MOVE.B  #16,D2
 
@@ -2065,6 +2065,8 @@ counter      DS.B   1
 
   
     END     START
+
+
 
 
 
