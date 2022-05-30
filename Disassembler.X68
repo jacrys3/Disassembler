@@ -991,6 +991,7 @@ and:
     MOVE.B  #14,D0
     TRAP    #15
     
+    CLR.L   D3
     JSR     aosize
     
     CLR.L D5
@@ -999,8 +1000,10 @@ and:
     CMP     #%0000000100000000,D5
     BGE     aoc2
     
-    MOVE.W  #%0000000000111111,D3
-    AND.W   D6,D3
+    CLR.L   D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3   
     
     JSR     ea
     
@@ -1036,6 +1039,7 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     MOVE.B  #14,D0
     TRAP    #15
     
+    CLR.L   D3
     JSR     aosize
     
     CLR.L D5
@@ -1044,8 +1048,10 @@ or:     *AND AND OR SIMILAR TO ADD, COULD COMBINE??
     CMP     #%0000000100000000,D5
     BGE     aoc2
     
-    MOVE.W  #%0000000000111111,D3
-    AND.W   D6,D3
+    CLR.L   D5
+    MOVE.W  #%0000000000111111,D5
+    AND.W   D6,D5
+    ADD.W   D5,D3
     
     JSR     ea
     
@@ -1075,7 +1081,7 @@ aoc2:
     MOVE.B  #14,D0
     TRAP    #15
     
-    CLR.L D3
+    CLR.L   D3
     MOVE.W  #%0000000000111111,D3
     AND.W   D6,D3
     
@@ -1325,6 +1331,11 @@ jsize:
     RTS
 
 shiftcount:
+
+    LEA msgim,A1
+    MOVE.B  #14,D0
+    TRAP #15
+
     CLR.L D3
     MOVE.W  #%0000111000000000,D1
     AND.W   D6,D1
@@ -2094,6 +2105,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
