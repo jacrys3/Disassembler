@@ -14,15 +14,42 @@ START:
     MOVE.B  #14,D0
     TRAP    #15
     
-    LEA     ENTERMSG1,A1
+ask:
+    
+    CLR D1
+    CLR D2
+    CLR D3
+    CLR D4
+    CLR D5
+    CLR D6
+    CLR D7
+
+    LEA msgask,A1
     MOVE.B  #14,D0
     TRAP    #15
     
- 
+    CLR D1
+    MOVE.B  #5,D0
+    TRAP    #15
+    
+    CMP.B   #$79,D1
+    BNE     END
+    
+    CLR D1
+    
+    LEA     SPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     msgenter1,A1
+    MOVE.B  #14,D0
+    TRAP    #15  
+
     *First number
     MOVE.B  #2,D0
     TRAP    #15
     
+    LEA (A1),A2
     CLR D2
     CLR D3
     JSR decode
@@ -30,13 +57,16 @@ START:
     
     MOVE.L  D3,D4
     
-    LEA     ENTERMSG2,A1
+    LEA     msgenter2,A1
     MOVE.B  #14,D0
     TRAP    #15
-
+    
+    
     *Second number
     MOVE.B  #2,D0
     TRAP    #15
+    
+    LEA (A1),A2
     
     CLR D2
     CLR D3
@@ -57,7 +87,7 @@ START:
     MOVE.B #0,counter
 
     BRA MainLoop
-    
+
 
 ****************** Main LOOP *************************
 
@@ -96,7 +126,7 @@ MainLoop:
     CMP.L   D4,A5
     BLE     MainLoop
    
-    BRA END
+    BRA ask
   
 END:
     MOVE.B  #9,D0
@@ -124,52 +154,52 @@ decode:
     CMP.B   D2,D1
     BEQ     return 
 
-    CMP.B   #$30,(A1)
+    CMP.B   #$30,(A2)
     BEQ     zero
     
-    CMP.B   #$31,(A1)
+    CMP.B   #$31,(A2)
     BEQ     one
     
-    CMP.B   #$32,(A1)
+    CMP.B   #$32,(A2)
     BEQ     two
     
-    CMP.B   #$33,(A1)
+    CMP.B   #$33,(A2)
     BEQ     three
     
-    CMP.B   #$34,(A1)
+    CMP.B   #$34,(A2)
     BEQ     four
     
-    CMP.B   #$35,(A1)
+    CMP.B   #$35,(A2)
     BEQ     five
     
-    CMP.B   #$36,(A1)
+    CMP.B   #$36,(A2)
     BEQ     six
     
-    CMP.B   #$37,(A1)
+    CMP.B   #$37,(A2)
     BEQ     seven
     
-    CMP.B   #$38,(A1)
+    CMP.B   #$38,(A2)
     BEQ     eight
     
-    CMP.B   #$39,(A1)
+    CMP.B   #$39,(A2)
     BEQ     nine
     
-    CMP.B   #$41,(A1)
+    CMP.B   #$41,(A2)
     BEQ     a
 
-    CMP.B   #$42,(A1)
+    CMP.B   #$42,(A2)
     BEQ     b
 
-    CMP.B   #$43,(A1)
+    CMP.B   #$43,(A2)
     BEQ     c
 
-    CMP.B   #$44,(A1)
+    CMP.B   #$44,(A2)
     BEQ     d
     
-    CMP.B   #$45,(A1)
+    CMP.B   #$45,(A2)
     BEQ     e
 
-    CMP.B   #$46,(A1)
+    CMP.B   #$46,(A2)
     BEQ     f   
    
 return:
@@ -179,21 +209,21 @@ zero:
 
     ASL.L   #4,D3
     ADDI.L  #$00,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 one:
     ASL.L   #4,D3
     ADDI.L  #$01,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 two:
     ASL.L   #4,D3
     ADDI.L  #$02,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     
     BRA     decode
@@ -201,7 +231,7 @@ two:
 three:
     ASL.L   #4,D3
     ADDI.L  #$03,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     
     BRA     decode
@@ -209,7 +239,7 @@ three:
 four:
     ASL.L   #4,D3
     ADDI.L  #$04,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     
     BRA     decode
@@ -217,77 +247,77 @@ four:
 five:
     ASL.L   #4,D3
     ADDI.L  #$05,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 six:
     ASL.L   #4,D3
     ADDI.L  #$06,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 seven:
     ASL.L   #4,D3
     ADDI.L  #$07,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 eight:
     ASL.L   #4,D3
     ADDI.L  #$08,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 nine:
     ASL.L   #4,D3
     ADDI.L  #$09,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 a:
     ASL.L   #4,D3
     ADDI.L  #$0A,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 b:
     ASL.L   #4,D3
     ADDI.L  #$0B,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 c:
     ASL.L   #4,D3
     ADDI.L  #$0C,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 d:
     ASL.L   #4,D3
     ADDI.L  #$0D,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 e:
     ASL.L   #4,D3
     ADDI.L  #$0E,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
 f:
     ASL.L   #4,D3
     ADDI.L  #$0F,D3
-    ADDQ    #1,A1
+    ADDQ    #1,A2
     ADDQ    #1,D2
     BRA     decode
 
@@ -1975,6 +2005,11 @@ SPACE        DC.B   '',CR,LF,0
 ENTERMSG1    DC.B   'Enter starting address: ',0
 ENTERMSG2    DC.B   'Enter ending address: ',0 
 
+msgenter1    DC.B   'Enter starting address: ',0
+msgenter2    DC.B   'Enter ending address: ',0 
+
+msgask       DC.B   'Would you like to dissasemble a program (y/n)? ',0
+
 msgmove      DC.B   'MOVE',0
 msgmovea     DC.B   'MOVEA',0
 msgmoveq     DC.B   'MOVEQ',0
@@ -2029,6 +2064,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
