@@ -1,12 +1,33 @@
     ORG $4000
     
 START:
-    MOVE.L  #$83,D1
-    MOVE.B  #$33,D2
-    MOVE.W  #$93,D7
+
+    BGT hello
+    
+hello:
+    MOVE.W  D1,D2   
+    
     
 
     END START
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
