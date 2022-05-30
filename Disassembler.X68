@@ -45,11 +45,13 @@ ask:
     MOVE.B  #14,D0
     TRAP    #15  
 
+    LEA (A2),A1
+
     *First number
     MOVE.B  #2,D0
     TRAP    #15
     
-    LEA (A1),A2
+    
     CLR D2
     CLR D3
     JSR decode
@@ -61,12 +63,11 @@ ask:
     MOVE.B  #14,D0
     TRAP    #15
     
+    LEA (A2),A1
     
     *Second number
     MOVE.B  #2,D0
     TRAP    #15
-    
-    LEA (A1),A2
     
     CLR D2
     CLR D3
@@ -2064,6 +2065,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
