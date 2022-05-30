@@ -2026,17 +2026,10 @@ msginvalid   DC.B   'DATA ',0
 counter      DS.B   1
 
 
-msghex       DC.B   '$',0
-
-msgenter     DC.B   'Press Enter to Continue',CR,LF,0
-msginvalid   DC.B   'DATA ',0
-
-counter      DS.B   1
-
-
 
   
     END     START
+
 
 
 
