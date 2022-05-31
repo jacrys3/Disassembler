@@ -443,6 +443,16 @@ move:
     CMP.W   #%0000000000000000,D5
     BEQ     invalid
     
+    CLR.L D5
+    MOVE.W  #%0000000000111000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000000110000,D5
+    BEQ     invalid
+    AND.W   D6,D5
+    CMP.W   #%0000000000101000,D5
+    BEQ     invalid
+    
+    
     LEA     msgmove,A1
     MOVE.B  #14,D0
     TRAP    #15
@@ -827,6 +837,17 @@ SUB:
     AND.W	D6, D5
     CMP.W   #%1001000000000000, D5
     BNE		lea
+    
+    CLR.L D5
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000011000000,D5
+    BEQ     invalid
+    
+    MOVE.W  #%0000000111000000,D5
+    AND.W   D6,D5
+    CMP.W   #%0000000111000000,D5
+    BEQ     invalid
 
 * display opcode SUB
     LEA		msgsub, A1
@@ -2105,6 +2126,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
