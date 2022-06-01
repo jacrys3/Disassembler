@@ -248,6 +248,12 @@ decode:
     CMP.B   #$46,(A2)
     BEQ     f   
    
+    LEA msgerror4,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    BRA     ask
+   
 return:
     RTS
    
@@ -2167,6 +2173,7 @@ msginvalid   DC.B   'DATA ',0
 msgerror1    DC.B   'ERROR: invalid address',0
 msgerror2    DC.B   'ERROR: addresses are the same',0
 msgerror3    DC.B   'ERROR: starting address must be less than ending address',0
+msgerror4    DC.B   'ERROR: Invalid character',CR,LF,0
 
 counter      DS.B   1
 
@@ -2174,6 +2181,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
