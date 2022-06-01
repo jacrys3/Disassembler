@@ -51,11 +51,15 @@ ask:
     MOVE.B  #2,D0
     TRAP    #15
     
-    
     CLR.L D2
     CLR.L D3
     JSR decode
     
+    CMP.L   #0,D3
+    BLE     error1
+    
+    CMP.L   #$FFFFFF,D3
+    BGE     error1
     
     MOVE.L  D3,D4
     
@@ -73,6 +77,18 @@ ask:
     CLR.L D3
     JSR decode
     
+    CMP.L   #0,D3
+    BLE     error1
+    
+    CMP.L   #$FFFFFF,D3
+    BGE     error1
+    
+    CMP.L   D4,D3
+    BEQ     error2
+    
+    CMP.L   D4,D3
+    BLT     error3
+    
     CLR.L D5
     MOVE.L  D3,D5
     MOVE.L  D4,D3
@@ -89,6 +105,35 @@ ask:
 
     BRA MainLoop
 
+error1:
+    LEA     msgerror1,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     SPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    BRA     ask
+
+error2:
+    LEA     msgerror2,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     SPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    BRA     ask
+
+error3:
+    LEA     msgerror3,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    
+    LEA     SPACE,A1
+    MOVE.B  #14,D0
+    TRAP    #15
+    BRA     ask
 
 ****************** Main LOOP *************************
 
@@ -2119,6 +2164,9 @@ msghex       DC.B   '$',0
 
 msgenter     DC.B   'Press Enter to Continue',CR,LF,0
 msginvalid   DC.B   'DATA ',0
+msgerror1    DC.B   'ERROR: invalid address',0
+msgerror2    DC.B   'ERROR: addresses are the same',0
+msgerror3    DC.B   'ERROR: starting address must be less than ending address',0
 
 counter      DS.B   1
 
@@ -2126,6 +2174,7 @@ counter      DS.B   1
 
   
     END     START
+
 
 
 
